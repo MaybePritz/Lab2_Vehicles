@@ -1,21 +1,5 @@
 import java.util.Arrays;
 
-/**
- * Задание 5:
- *  - Создать утилитарный класс со статическими методами:
- *    • среднее арифметическое цен всех моделей,
- *    • вывод списка всех моделей,
- *    • вывод списка цен моделей.
- *
- * Результат:
- *  - Реализованы классы Автомобиль и Мотоцикл,
- *  - Используются собственные исключения,
- *  - Интерфейс ТранспортноеСредство,
- *  - Утилитарный класс для работы с интерфейсом.
- */
-
-//чета поахуевали с такими заданиями
-
 // ------------- Исключения ------------- //
 
 class NoSuchModelNameException extends Exception{
@@ -61,16 +45,19 @@ public class Main {
             auto.addModel("Octavia", 3000000);
             auto.addModel("Yeti", 2000000);
 
-            System.out.println(Arrays.toString(auto.getModelsName())); // Октавия и Йети
-            System.out.println(Arrays.toString(auto.getModelsCost())); // 3кк и 2кк
+            System.out.println("Список моделей " + auto.getBrand() + ":");
+            VehicleUtils.printModels(auto);
 
-            System.out.println(auto.getModelCost("Octavia")); // 3кк
+            System.out.println("Список цен:");
+            VehicleUtils.printPrices(auto);
+
+            System.out.println("Средняя цена: " + VehicleUtils.averagePrice(auto));
 
             auto.setModelCost("Octavia", 3100000);
-            System.out.println(auto.getModelCost("Octavia")); // 3.1кк
+            System.out.println("Цена Octavia после изменения: " + auto.getModelCost("Octavia"));
 
             auto.removeModel("Yeti");
-            System.out.println(auto.getSize()); // 1
+            System.out.println("Количество моделей после удаления: " + auto.getSize());
 
         } catch (DuplicateModelNameException e) {
             System.out.println("Ошибка: модель с таким именем уже существует");
@@ -79,25 +66,27 @@ public class Main {
         }
 
         System.out.println("// ------------- Мотоциклы ------------- //");
-
         try {
             moto.addModel("CBR600RR", 1200000);
             moto.addModel("AfricaTwin", 1500000);
 
-            System.out.println(Arrays.toString(moto.getModelsName())); // CBR600RR и AfricaTwin
-            System.out.println(Arrays.toString(moto.getModelsCost())); // 1.2кк и 1.5кк
+            System.out.println("Список моделей " + moto.getBrand() + ":");
+            VehicleUtils.printModels(moto);
 
-            System.out.println(moto.getModelCost("CBR600RR")); // 1.2кк
+            System.out.println("Список цен:");
+            VehicleUtils.printPrices(moto);
+
+            System.out.println("Средняя цена: " + VehicleUtils.averagePrice(moto));
 
             moto.setModelCost("CBR600RR", 1250000);
-            System.out.println(moto.getModelCost("CBR600RR")); // 1.25кк
+            System.out.println("Цена CBR600RR после изменения: " + moto.getModelCost("CBR600RR"));
 
             moto.changeModelName(0, "CBR650RR");
-            System.out.println(Arrays.toString(moto.getModelsName())); // CBR650RR и AfricaTwin
+            System.out.println("Список моделей после переименования:");
+            VehicleUtils.printModels(moto);
 
             moto.removeModel("AfricaTwin");
-            System.out.println(moto.getSize()); // 1
-            System.out.println(Arrays.toString(moto.getModelsName())); // CBR650RR
+            System.out.println("Количество моделей после удаления: " + moto.getSize());
 
         } catch (NoSuchModelNameException e) {
             System.out.println("Ошибка: модель не найдена");
@@ -108,6 +97,7 @@ public class Main {
         }
     }
 }
+
 
 interface Vehicle {
     String getBrand();
@@ -127,6 +117,44 @@ interface Vehicle {
     int getSize();
 }
 
+final class VehicleUtils{
+    private VehicleUtils() {}
+
+    public static double averagePrice(Vehicle vehicle){
+        double[] prices = vehicle.getModelsCost();
+        double avg = 0;
+        double sum = 0;
+        if(prices == null || prices.length == 0)
+            avg = 0;
+        else {
+            for(double price : prices)
+                sum += price;
+            avg = sum / prices.length;
+        }
+        return avg;
+    }
+
+    public static void printModels(Vehicle vehicle) {
+        String[] models = vehicle.getModelsName();
+
+        if (models == null || models.length == 0) {
+            System.out.println("Список моделей пуст");
+        } else {
+            for(String model : models)
+                System.out.println(model);
+        }
+    }
+
+    public static void printPrices(Vehicle vehicle) {
+        double[] prices = vehicle.getModelsCost();
+        if (prices == null || prices.length == 0) {
+            System.out.println("Список цен пуст");
+        } else {
+            for(double price : prices)
+                System.out.println(price);
+        }
+    }
+}
 
 class Automobile implements Vehicle{
     private String brand = null;
