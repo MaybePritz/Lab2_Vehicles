@@ -1,51 +1,6 @@
 import java.util.Arrays;
 
 /**
- * Лабораторная работа №2
- * Тема: Исключения, интерфейсы и работа с коллекциями в Java
- *
- * Цель работы:
- *  - закрепить навыки объектно-ориентированного программирования в Java,
- *  - изучить вложенные классы, работу с массивами и связными списками,
- *    обработку исключений (checked и unchecked),
- *    использование интерфейсов,
- *    организацию кода с помощью утилитарных классов.
- *
- * Задание 1:
- *  - Создать класс Автомобиль:
- *    - поле String марка,
- *    - методы get/set марки,
- *    - внутренний класс Модель (название + цена),
- *    - массив моделей внутри Автомобиль,
- *    - методы:
- *      • изменить название модели,
- *      • получить массив названий моделей,
- *      • получить цену модели по названию,
- *      • изменить цену модели по названию,
- *      • получить массив цен моделей,
- *      • добавить модель (Arrays.copyOf),
- *      • удалить модель (System.arraycopy + Arrays.copyOf),
- *      • получить размер массива моделей.
- *    - Конструктор: принимает марку и размер массива моделей,
- *      заполняет уникальными названиями и случайными ценами.
- *
- * Задание 2:
- *  - Создать класс Мотоцикл:
- *    • аналогично Автомобилю, но использовать двусвязный циклический список с головой,
- *    • хранить поле lastModified (дата последнего изменения),
- *      инициализировать в блоке инициализации и обновлять при модификации.
- *
- * Задание 3:
- *  - Создать исключения:
- *    • NoSuchModelNameException (checked) – обращение к несуществующей модели,
- *    • DuplicateModelNameException (checked) – дублирование названий моделей,
- *    • ModelPriceOutOfBoundsException (unchecked) – неверная цена модели.
- *
- * Задание 4:
- *  - Создать интерфейс ТранспортноеСредство:
- *    • общие методы для Автомобиля и Мотоцикла.
- *  - Реализовать его в обоих классах.
- *
  * Задание 5:
  *  - Создать утилитарный класс со статическими методами:
  *    • среднее арифметическое цен всех моделей,
@@ -61,44 +16,146 @@ import java.util.Arrays;
 
 //чета поахуевали с такими заданиями
 
-public class Main {
-    public static void main(String[] args) {
-        Automobile auto = new Automobile("Skoda", 0);
+// ------------- Исключения ------------- //
 
-        auto.addModel("Octavia", 3000000);
-        auto.addModel("Yeti", 2000000);
+class NoSuchModelNameException extends Exception{
+    public NoSuchModelNameException(String message){
+        super(message);
+    }
 
-        System.out.println(Arrays.toString(auto.getModelsName())); // Октавия и йети, должно быть
-        System.out.println(Arrays.toString(auto.getModelsCost()));    // 3кк и 2кк
-
-        System.out.println(auto.getModelCost("Octavia")); // 3кк
-
-        auto.setModelCost("Octavia", 3100000);
-        System.out.println(auto.getModelCost("Octavia")); // 3.1кк
-
-        auto.removeModel("Yeti");
-        System.out.println(auto.getModelsCount()); // 1
+    public NoSuchModelNameException(){
+        super("Обращение к несуществующей модели");
     }
 }
 
-
-class Automobile{
-    private String brand;
-    private Model[] models;
-
-    public Automobile(String brand, int size) {
-        this.brand = brand;
-        this.models = new Model[size];
+class DuplicateModelNameException extends Exception{
+    public DuplicateModelNameException(String message){
+        super(message);
     }
 
+    public DuplicateModelNameException(){
+        super("Дублирование названий моделей");
+    }
+}
+
+class ModelPriceOutOfBoundsException extends RuntimeException {
+    public ModelPriceOutOfBoundsException(String message) {
+        super(message);
+    }
+
+    public ModelPriceOutOfBoundsException() {
+        super("Неверная цена модели");
+    }
+}
+
+// ------------- Исключения ------------- //
+
+
+public class Main {
+    public static void main(String[] args) {
+        Automobile auto = new Automobile("Skoda");
+        Motocycle moto = new Motocycle("Honda");
+
+        System.out.println("// ------------- Машины ------------- //");
+        try {
+            auto.addModel("Octavia", 3000000);
+            auto.addModel("Yeti", 2000000);
+
+            System.out.println(Arrays.toString(auto.getModelsName())); // Октавия и Йети
+            System.out.println(Arrays.toString(auto.getModelsCost())); // 3кк и 2кк
+
+            System.out.println(auto.getModelCost("Octavia")); // 3кк
+
+            auto.setModelCost("Octavia", 3100000);
+            System.out.println(auto.getModelCost("Octavia")); // 3.1кк
+
+            auto.removeModel("Yeti");
+            System.out.println(auto.getSize()); // 1
+
+        } catch (DuplicateModelNameException e) {
+            System.out.println("Ошибка: модель с таким именем уже существует");
+        } catch (NoSuchModelNameException e) {
+            System.out.println("Ошибка: модель не найдена");
+        }
+
+        System.out.println("// ------------- Мотоциклы ------------- //");
+
+        try {
+            moto.addModel("CBR600RR", 1200000);
+            moto.addModel("AfricaTwin", 1500000);
+
+            System.out.println(Arrays.toString(moto.getModelsName())); // CBR600RR и AfricaTwin
+            System.out.println(Arrays.toString(moto.getModelsCost())); // 1.2кк и 1.5кк
+
+            System.out.println(moto.getModelCost("CBR600RR")); // 1.2кк
+
+            moto.setModelCost("CBR600RR", 1250000);
+            System.out.println(moto.getModelCost("CBR600RR")); // 1.25кк
+
+            moto.changeModelName(0, "CBR650RR");
+            System.out.println(Arrays.toString(moto.getModelsName())); // CBR650RR и AfricaTwin
+
+            moto.removeModel("AfricaTwin");
+            System.out.println(moto.getSize()); // 1
+            System.out.println(Arrays.toString(moto.getModelsName())); // CBR650RR
+
+        } catch (NoSuchModelNameException e) {
+            System.out.println("Ошибка: модель не найдена");
+        } catch (ModelPriceOutOfBoundsException e) {
+            System.out.println("Ошибка: цена модели не может быть отрицательной");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        }
+    }
+}
+
+interface Vehicle {
+    String getBrand();
+    void setBrand(String brand);
+
+    String[] getModelsName();
+    double[] getModelsCost();
+
+    void changeModelName(int index, String name);
+
+    double getModelCost(String name) throws NoSuchModelNameException;
+    void setModelCost(String name, double cost) throws NoSuchModelNameException;
+
+    void addModel(String name, double cost) throws DuplicateModelNameException;
+    void removeModel(String name) throws NoSuchModelNameException;
+
+    int getSize();
+}
+
+
+class Automobile implements Vehicle{
+    private String brand = null;
+    private Model[] models = null;
+
+    public Automobile(String brand) {
+        if (brand == null || brand.isEmpty())
+            throw new IllegalArgumentException("Бренд не может быть пустым");
+        this.brand = brand;
+        this.models = new Model[0];
+    }
+
+    @Override
     public String getBrand() { return this.brand; }
+
+    @Override
     public void setBrand(String brand) { this.brand = brand; }
 
-    static class Model {
-        private String name;
-        private int cost;
+    private class Model {
+        private String name = null;
+        private double cost = Double.NaN;
 
-        public Model(String name, int cost) {
+        public Model(String name, double cost) {
+            if (name == null || name.isEmpty()) {
+                throw new IllegalArgumentException("Название модели не может быть пустым");
+            }
+            if (cost < 0) {
+                throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
+            }
             this.name = name;
             this.cost = cost;
         }
@@ -106,11 +163,12 @@ class Automobile{
         public String getName() { return this.name; }
         public void setName(String name) { this.name = name; }
 
-        public int getCost() { return this.cost; }
-        public void setCost(int cost) { this.cost = cost; }
+        public double getCost() { return this.cost; }
+        public void setCost(double cost) { this.cost = cost; }
 
     }
 
+    @Override
     public String[] getModelsName() {
         String[] names = new String[models.length];
         for (int i = 0; i < models.length; i++) { names[i] = models[i].getName(); }
@@ -118,49 +176,66 @@ class Automobile{
         return names;
     }
 
-    public int getModelCost(String name){
-        for(Model model :  this.models){
-            if(model.getName().equals(name)) { return model.cost; }
-        }
-        throw new IllegalArgumentException("Модель не найдена");
-    }
-
-    public void setModelCost(String name, int cost){
-        if(cost > 0){
-            for(Model model :  this.models){
-                if(model.getName().equals(name)) {
-                    model.cost = cost;
-                    return;
-                }
-            }
-
-            throw new IllegalArgumentException("Модель не найдена");
-        }
-        else { throw new IllegalArgumentException("Стоимость должна быть положительной"); }
-    }
-
-    public int[] getModelsCost(){
-        int[] costs = new int[this.models.length];
+    @Override
+    public double[] getModelsCost(){
+        double[] costs = new double[this.models.length];
         for(int i = 0; i < this.models.length; i++) { costs[i] = this.models[i].getCost(); }
         return costs;
     }
 
-    public void addModel(String name, int cost){
+    @Override
+    public double getModelCost(String name) throws NoSuchModelNameException{
         for(Model model :  this.models){
-            if(model.getName().equals(name)){ throw new IllegalArgumentException("Модель с таким названием уже существует"); }
+            if(model.getName().equals(name)) { return model.cost; }
+        }
+        throw new NoSuchModelNameException("Модель не найдена");
+    }
+
+    @Override
+    public void setModelCost(String name, double cost) throws NoSuchModelNameException {
+        if (cost < 0) {
+            throw new ModelPriceOutOfBoundsException("Цена не может быть отрицательной");
+        } else {
+            for (Model model : models) {
+                if (model.getName().equals(name)) {
+                    model.setCost(cost);
+                    return;
+                }
+            }
+            throw new NoSuchModelNameException();
+        }
+
+    }
+
+    @Override
+    public void changeModelName(int index, String name) {
+        if (index < 0 || index >= models.length) {
+            throw new IndexOutOfBoundsException("Индекс вне диапазона массива");
+        }
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Название модели не может быть пустым");
+        }
+        models[index].setName(name);
+    }
+
+    @Override
+    public void addModel(String name, double cost) throws DuplicateModelNameException{
+        for(Model model :  this.models){
+            if(model.getName().equals(name)){ throw new DuplicateModelNameException(); }
         }
 
         models = Arrays.copyOf(this.models, this.models.length + 1);
         models[this.models.length-1] = new Model(name, cost);
     }
 
-    public void removeModel(String name){
+    @Override
+    public void removeModel(String name) throws NoSuchModelNameException{
         int index = -1;
         for(int i = 0; i < this.models.length && index == -1; i++){
             if(this.models[i].getName().equals(name)) { index = i; }
         }
 
-        if(index == -1){ throw new IllegalArgumentException("Модель с таким названием не найдена"); }
+        if(index == -1){ throw new NoSuchModelNameException(); }
 
         Model[] newArray = new Model[this.models.length - 1];
         System.arraycopy(this.models, 0, newArray, 0, index);
@@ -168,5 +243,189 @@ class Automobile{
         models = Arrays.copyOf(newArray, newArray.length);
     }
 
-    public int getModelsCount() { return this.models.length; }
+    @Override
+    public int getSize() { return this.models.length; }
+}
+
+class Motocycle implements Vehicle{
+    private static class Model {
+        private String name;
+        private double cost;
+        private Model next;
+        private Model prev;
+
+        public Model(String name, double cost) {
+            if (name == null || name.isEmpty())
+                throw new IllegalArgumentException("Название модели не может быть пустым");
+            else {
+                if(cost < 0) {
+                    throw new ModelPriceOutOfBoundsException();
+                } else {
+                    this.name = name;
+                    this.cost = cost;
+                }
+            }
+        }
+
+        public String getName() { return name; }
+
+        public void setName(String name) {
+            if (name == null || name.isEmpty())
+                throw new IllegalArgumentException("Название модели не может быть пустым");
+            else
+                this.name = name;
+        }
+
+        public double getCost() { return cost; }
+
+        public void setCost(double cost) {
+            if(cost < 0)
+                throw new ModelPriceOutOfBoundsException();
+            else
+                this.cost = cost;
+        }
+    }
+
+    private int size = 0;
+    private String brand = null;
+    private Model head = null;
+    private long lastModified = 0;
+
+    public Motocycle(String brand) {
+        if (brand == null || brand.isEmpty())
+            throw new IllegalArgumentException("Бренд не может быть пустым");
+        else {
+            this.brand = brand;
+            this.lastModified = System.currentTimeMillis();
+        }
+    }
+
+    @Override
+    public String[] getModelsName() {
+        String[] names = new String[size];
+        Model p = head;
+        for (int i = 0; i < size; i++) {
+            names[i] = p.getName();
+            p = p.next;
+        }
+        return names;
+    }
+
+    @Override
+    public double[] getModelsCost(){
+        double[] costs = new double[size];
+        Model p = head;
+        for(int i = 0; i < size; i++){
+            costs[i] = p.getCost();
+            p = p.next;
+        }
+        return costs;
+    }
+
+    @Override
+    public void changeModelName(int index, String name) {
+        Model node = getModelByIndex(index);
+        node.setName(name);
+        this.lastModified = System.currentTimeMillis();
+    }
+
+    @Override
+    public double getModelCost(String name) throws NoSuchModelNameException{
+        return getModelByName(name).getCost();
+    }
+
+    @Override
+    public void setModelCost(String name, double cost) throws NoSuchModelNameException{
+        if (cost < 0) {
+            throw new ModelPriceOutOfBoundsException("Цена не может быть отрицательной");
+        } else{
+            getModelByName(name).setCost(cost);
+            this.lastModified = System.currentTimeMillis();
+        }
+    }
+
+    @Override
+    public void addModel(String name, double cost){
+        Model newNode = new Model(name, cost);
+
+        if (head == null) {
+            head = newNode;
+            newNode.next = newNode;
+            newNode.prev = newNode;
+        } else {
+            Model last = head.prev;
+
+            last.next = newNode;
+            newNode.prev = last;
+
+            newNode.next = head;
+            head.prev = newNode;
+        }
+
+        this.size++;
+        this.lastModified = System.currentTimeMillis();
+    }
+
+    @Override
+    public void removeModel(String name) throws NoSuchModelNameException {
+        if(head != null) {
+            Model node = getModelByName(name);
+
+            if(this.size == 1){
+                head = null;
+            } else {
+                node.prev.next = node.next;
+                node.next.prev = node.prev;
+
+                if(node == head){
+                    head = node.next;
+                }
+            }
+
+            this.size--;
+            this.lastModified = System.currentTimeMillis();
+        }
+    }
+
+    @Override
+    public int getSize() { return this.size; }
+    @Override
+    public String getBrand() { return this.brand; }
+    @Override
+    public void setBrand(String brand) { this.brand = brand; }
+
+    // ------------- Приватные методы ------------- //
+
+    private Model getModelByIndex(int index){
+        if(index < 0 || index >= this.size) {
+            throw new IndexOutOfBoundsException("Индекс вне списка");
+        } else{
+            Model p = head;
+            for (int i = 0; i < index; i++){
+                p = p.next;
+            }
+            return p;
+        }
+    }
+    private Model getModelByName(String name) throws NoSuchModelNameException{
+        if (head == null) {
+            throw new NoSuchModelNameException("Список пуст");
+        } else{
+            Model p = head;
+            while (p.next != head) {
+                if (p.getName().equals(name)) {
+                    return p;
+                }
+                p = p.next;
+            }
+
+            if (p.getName().equals(name)) {
+                return p;
+            } else{
+                throw new NoSuchModelNameException("Модель с таким именем не найдена");
+            }
+        }
+    }
+
+    // ------------- Приватные методы ------------- //
 }
