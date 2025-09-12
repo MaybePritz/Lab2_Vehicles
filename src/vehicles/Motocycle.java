@@ -1,7 +1,6 @@
 package vehicles;
 
-import exceptions.ModelPriceOutOfBoundsException;
-import exceptions.NoSuchModelNameException;
+import exceptions.*;
 
 public class Motocycle implements Vehicle{
     private static class Model {

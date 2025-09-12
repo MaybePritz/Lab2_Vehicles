@@ -1,7 +1,6 @@
 package vehicles;
 
-import exceptions.DuplicateModelNameException;
-import exceptions.NoSuchModelNameException;
+import exceptions.*;
 
 public interface Vehicle {
     String getBrand();

@@ -1,8 +1,6 @@
 package vehicles;
 
-import exceptions.DuplicateModelNameException;
-import exceptions.ModelPriceOutOfBoundsException;
-import exceptions.NoSuchModelNameException;
+import exceptions.*;
 
 import java.util.Arrays;
 
