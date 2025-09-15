@@ -48,7 +48,7 @@ public class Main {
             moto.setModelCost("CBR600RR", 1250000);
             System.out.println("Цена CBR600RR после изменения: " + moto.getModelCost("CBR600RR"));
 
-            moto.changeModelName(0, "CBR650RR");
+            moto.setModelName("CBR600RR", "CBR650RR");
             System.out.println("Список моделей после переименования:");
             VehicleUtils.printModels(moto);
 

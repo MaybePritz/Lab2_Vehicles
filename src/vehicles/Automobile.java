@@ -84,14 +84,11 @@ public class Automobile implements Vehicle{
     }
 
     @Override
-    public void changeModelName(int index, String name) {
-        if (index < 0 || index >= models.length) {
-            throw new IndexOutOfBoundsException("Индекс вне диапазона массива");
-        }
-        if (name == null || name.isEmpty()) {
+    public void setModelName(String oldName, String newName) throws NoSuchModelNameException {
+        if (newName == null || newName.isEmpty()) {
             throw new IllegalArgumentException("Название модели не может быть пустым");
         }
-        models[index].setName(name);
+        findModelByName(oldName).setName(newName);
     }
 
     @Override
@@ -121,4 +118,12 @@ public class Automobile implements Vehicle{
 
     @Override
     public int getSize() { return this.models.length; }
+
+    private Model findModelByName(String name) throws NoSuchModelNameException{
+        for (int i = 0; i < models.length; i++){
+            if(models[i].getName().equals(name))
+                return models[i];
+        }
+        throw new NoSuchModelNameException();
+    }
 }

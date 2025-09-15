@@ -80,9 +80,9 @@ public class Motocycle implements Vehicle{
     }
 
     @Override
-    public void changeModelName(int index, String name) {
-        Model node = getModelByIndex(index);
-        node.setName(name);
+    public void setModelName(String oldName, String newName) throws NoSuchModelNameException {
+        Model node = getModelByName(oldName);
+        node.setName(newName);
         this.lastModified = System.currentTimeMillis();
     }
 

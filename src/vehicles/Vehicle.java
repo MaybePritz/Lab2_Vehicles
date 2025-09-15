@@ -9,7 +9,7 @@ public interface Vehicle {
     String[] getModelsName();
     double[] getModelsCost();
 
-    void changeModelName(int index, String name);
+    void setModelName(String oldName, String Newname) throws NoSuchModelNameException;
 
     double getModelCost(String name) throws NoSuchModelNameException;
     void setModelCost(String name, double cost) throws NoSuchModelNameException;
