@@ -3,43 +3,36 @@ package vehicles;
 import exceptions.*;
 
 public class Motocycle implements Vehicle{
-    private static class Model {
-        private String name;
-        private double cost;
-        private Model next;
-        private Model prev;
+
+    // ------------- Класс модели ------------- //
+    private class Model {
+        private String name = null;
+        private double cost = Double.NaN;
+        private Model next =  null;
+        private Model prev = null;
 
         public Model(String name, double cost) {
-            if (name == null || name.isEmpty())
-                throw new IllegalArgumentException("Название модели не может быть пустым");
-            else {
-                if(cost < 0) {
-                    throw new ModelPriceOutOfBoundsException();
-                } else {
-                    this.name = name;
-                    this.cost = cost;
-                }
-            }
+            Vehicle.validateCost(cost);
+
+            this.name = name;
+            this.cost = cost;
         }
 
         public String getName() { return name; }
 
         public void setName(String name) {
-            if (name == null || name.isEmpty())
-                throw new IllegalArgumentException("Название модели не может быть пустым");
-            else
-                this.name = name;
+            Vehicle.validateName(name);
+            this.name = name;
         }
 
         public double getCost() { return cost; }
 
         public void setCost(double cost) {
-            if(cost < 0)
-                throw new ModelPriceOutOfBoundsException();
-            else
-                this.cost = cost;
+            Vehicle.validateCost(cost);
+            this.cost = cost;
         }
     }
+    // ------------- Класс модели ------------- //
 
     private int size = 0;
     private String brand = null;
@@ -48,19 +41,34 @@ public class Motocycle implements Vehicle{
 
     {
         lastModified = System.currentTimeMillis();
+        head = new Model(null, 0);
+        head.next = head;
+        head.prev = head;
     }
 
-    public Motocycle(String brand) {
+    public Motocycle(String brand, int size) {//size
         if (brand == null || brand.isEmpty())
             throw new IllegalArgumentException("Бренд не может быть пустым");
-        else
+        if (size < 0)
+            throw new IllegalArgumentException("Размер не может быть отрицательным");
+        else {
             this.brand = brand;
+            for (int i = 0; i < size; i++) {
+                Model node = new Model("Model" + (i + 1), 0);
+                Model last = head.prev;
+                last.next = node;
+                node.prev = last;
+                node.next = head;
+                head.prev = node;
+                this.size++;
+            }
+        }
     }
 
     @Override
     public String[] getModelsName() {
         String[] names = new String[size];
-        Model p = head;
+        Model p = head.next;
         for (int i = 0; i < size; i++) {
             names[i] = p.getName();
             p = p.next;
@@ -71,7 +79,7 @@ public class Motocycle implements Vehicle{
     @Override
     public double[] getModelsCost(){
         double[] costs = new double[size];
-        Model p = head;
+        Model p = head.next;
         for(int i = 0; i < size; i++){
             costs[i] = p.getCost();
             p = p.next;
@@ -80,44 +88,49 @@ public class Motocycle implements Vehicle{
     }
 
     @Override
-    public void setModelName(String oldName, String newName) throws NoSuchModelNameException {
+    public void setModelName(String oldName, String newName) //Добавлена проверка на дубликат
+            throws NoSuchModelNameException, DuplicateModelNameException {
+        Vehicle.validateName(oldName);
+        Vehicle.validateName(newName);
+
+        checkDuplicate(newName);
+
         Model node = getModelByName(oldName);
         node.setName(newName);
         this.lastModified = System.currentTimeMillis();
     }
 
+
     @Override
     public double getModelCost(String name) throws NoSuchModelNameException {
+        Vehicle.validateName(name);
         return getModelByName(name).getCost();
     }
 
     @Override
     public void setModelCost(String name, double cost) throws NoSuchModelNameException{
-        if (cost < 0) {
-            throw new ModelPriceOutOfBoundsException("Цена не может быть отрицательной");
-        } else{
-            getModelByName(name).setCost(cost);
-            this.lastModified = System.currentTimeMillis();
-        }
+        Vehicle.validateName(name);
+        Vehicle.validateCost(cost);
+
+        getModelByName(name).setCost(cost);
+        this.lastModified = System.currentTimeMillis();
     }
 
     @Override
-    public void addModel(String name, double cost){
+    public void addModel(String name, double cost) throws DuplicateModelNameException { //Переделал голову, теперь меньше проверок
+        Vehicle.validateName(name);
+        Vehicle.validateCost(cost);
+
+        checkDuplicate(name);
+
         Model newNode = new Model(name, cost);
+        Model last = head.prev;
 
-        if (head == null) {
-            head = newNode;
-            newNode.next = newNode;
-            newNode.prev = newNode;
-        } else {
-            Model last = head.prev;
+        last.next = newNode;
+        newNode.prev = last;
 
-            last.next = newNode;
-            newNode.prev = last;
-
-            newNode.next = head;
-            head.prev = newNode;
-        }
+        newNode.next = head;
+        head.prev = newNode;
 
         this.size++;
         this.lastModified = System.currentTimeMillis();
@@ -125,19 +138,13 @@ public class Motocycle implements Vehicle{
 
     @Override
     public void removeModel(String name) throws NoSuchModelNameException {
+        Vehicle.validateName(name);
+
         if(head != null) {
             Model node = getModelByName(name);
 
-            if(this.size == 1){
-                head = null;
-            } else {
-                node.prev.next = node.next;
-                node.next.prev = node.prev;
-
-                if(node == head){
-                    head = node.next;
-                }
-            }
+            node.prev.next = node.next;
+            node.next.prev = node.prev;
 
             this.size--;
             this.lastModified = System.currentTimeMillis();
@@ -153,34 +160,23 @@ public class Motocycle implements Vehicle{
 
     // ------------- Приватные методы ------------- //
 
-    private Model getModelByIndex(int index){
-        if(index < 0 || index >= this.size) {
-            throw new IndexOutOfBoundsException("Индекс вне списка");
-        } else{
-            Model p = head;
-            for (int i = 0; i < index; i++){
-                p = p.next;
-            }
-            return p;
-        }
-    }
-    private Model getModelByName(String name) throws NoSuchModelNameException{
-        if (head == null) {
-            throw new NoSuchModelNameException("Список пуст");
-        } else{
-            Model p = head;
-            while (p.next != head) {
-                if (p.getName().equals(name)) {
+    private Model getModelByName(String name) throws NoSuchModelNameException {
+         Model p = head.next;
+            while (p != head) {
+                if (p.getName().equals(name))
                     return p;
-                }
                 p = p.next;
             }
+            throw new NoSuchModelNameException("Модель с таким именем не найдена");
+    }
 
+    private void checkDuplicate(String name) throws DuplicateModelNameException {
+        Model p = head.next;
+        while (p != head) {
             if (p.getName().equals(name)) {
-                return p;
-            } else{
-                throw new NoSuchModelNameException("Модель с таким именем не найдена");
+                throw new DuplicateModelNameException(name);
             }
+            p = p.next;
         }
     }
 

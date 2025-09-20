@@ -1,11 +1,10 @@
 import exceptions.*;
 import vehicles.*;
 
-
 public class Main {
     public static void main(String[] args) {
-        Automobile auto = new Automobile("Skoda");
-        Motocycle moto = new Motocycle("Honda");
+        Vehicle auto = new Automobile("Skoda", 1000);
+        Vehicle moto = new Motocycle("Honda", 3);
 
         System.out.println("// ------------- Машины ------------- //");
         try {
@@ -20,17 +19,21 @@ public class Main {
 
             System.out.println("Средняя цена: " + VehicleUtils.averagePrice(auto));
 
-            auto.setModelCost("Octavia", 3100000);
+            auto.setModelCost("Octavia", 3100000);//setModelName
             System.out.println("Цена Octavia после изменения: " + auto.getModelCost("Octavia"));
 
-            auto.removeModel("Yeti");
+            auto.setModelName("Yeti", "Rapid");
+            System.out.println("Список моделей " + auto.getBrand() + " после переименования модели:");
+            VehicleUtils.printModels(auto);
+
+            auto.removeModel("Rapid");
             System.out.println("Количество моделей после удаления: " + auto.getSize());
 
-        } catch (DuplicateModelNameException e) {
-            System.out.println("Ошибка: модель с таким именем уже существует");
-        } catch (NoSuchModelNameException e) {
-            System.out.println("Ошибка: модель не найдена");
+        } catch (DuplicateModelNameException | NoSuchModelNameException e) {
+            System.out.println(e.getMessage());
         }
+
+        System.out.println();
 
         System.out.println("// ------------- Мотоциклы ------------- //");
         try {
@@ -49,18 +52,15 @@ public class Main {
             System.out.println("Цена CBR600RR после изменения: " + moto.getModelCost("CBR600RR"));
 
             moto.setModelName("CBR600RR", "CBR650RR");
-            System.out.println("Список моделей после переименования:");
+            System.out.println("Список моделей " + moto.getBrand() + " после переименования модели:");
+
             VehicleUtils.printModels(moto);
 
             moto.removeModel("AfricaTwin");
             System.out.println("Количество моделей после удаления: " + moto.getSize());
 
-        } catch (NoSuchModelNameException e) {
-            System.out.println("Ошибка: модель не найдена");
-        } catch (ModelPriceOutOfBoundsException e) {
-            System.out.println("Ошибка: цена модели не может быть отрицательной");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка: " + e.getMessage());
+        } catch (NoSuchModelNameException | ModelPriceOutOfBoundsException | DuplicateModelNameException  e) {
+            System.out.println(e.getMessage());
         }
     }
 }
