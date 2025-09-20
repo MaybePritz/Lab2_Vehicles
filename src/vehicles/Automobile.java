@@ -130,12 +130,25 @@ public class Automobile implements Vehicle{
 
         if(index == -1){ throw new NoSuchModelNameException(); }
 
+        /*
         //я кароч добавил count, чтоб смореть кол-во и, по идее, можно искать модель по имени, потом сдвигать ее вправо, в последнюю ячейку и удалять ее, но тогда размер массива не будет уменьшаться.
         for (int i = index; i < this.count - 1; i++)
             models[i] = models[i + 1];
 
         this.count--;
         models[this.count] = null;
+        */
+
+        Model[] newModels = new Model[models.length - 1];
+
+        if (index > 0)
+            System.arraycopy(models, 0, newModels, 0, index);
+
+        if (index < this.count - 1)
+            System.arraycopy(models, index + 1, newModels, index, this.count - index - 1);
+
+        models = Arrays.copyOf(newModels, newModels.length);
+        this.count--;
     }
 
     @Override
