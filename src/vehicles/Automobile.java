@@ -294,9 +294,7 @@ public class Automobile implements Vehicle, Serializable {
         if (obj instanceof Vehicle comparableVehicle) {
             if (!this.getBrand().equals(comparableVehicle.getBrand())) return false;
             if (!Arrays.equals(this.getModelsName(), comparableVehicle.getModelsName())) return false;
-            if (!Arrays.equals(this.getModelsCost(), comparableVehicle.getModelsCost())) return false;
-
-            return true;
+            return Arrays.equals(this.getModelsCost(), comparableVehicle.getModelsCost());
         } else return false;
     }
 
