@@ -1,14 +1,35 @@
 package vehicles;
 
 import exceptions.*;
+
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
-public class Automobile implements Vehicle{
+/**
+ * Класс {@code Automobile} - автомобиль с брендом и списком моделей с их ценами.
+ */
+public class Automobile implements Vehicle, Serializable {
+
+    /**
+     * Название бренда автомобиля.
+     */
     private String brand = null;
-    private Model[] models = null;
-    private int count = 0;
 
-    public Automobile(String brand, int size) {
+    /**
+     * Массив моделей автомобиля.
+     */
+    private Model[] models = null;
+
+    /**
+     * Конструктор
+     *
+     * @param brand название бренда автомобиля
+     * @param size  количество моделей
+     * @throws IllegalArgumentException   если бренд пустой или null, или размер отрицательный
+     * @throws DuplicateModelNameException если при добавлении моделей возникнет дублирование
+     */
+    public Automobile(String brand, int size) throws DuplicateModelNameException {
         if (brand == null || brand.isEmpty())
             throw new IllegalArgumentException("Бренд не может быть пустым");
 
@@ -16,78 +37,150 @@ public class Automobile implements Vehicle{
             throw new IllegalArgumentException("Размер массива моделей не может быть отрицательным");
 
         this.brand = brand;
-        this.models = new Model[size];
+        this.models = new Model[0];
+
+        for (int i = 0; i < size; i++) {
+            this.addModel("Модель" + (i + 1), 0);
+        }
     }
 
+    /**
+     * Возвращает бренд автомобиля.
+     *
+     * @return {@code brand}
+     */
     @Override
-    public String getBrand() { return this.brand; }
+    public String getBrand() {
+        return this.brand;
+    }
 
+    /**
+     * Устанавливает бренд автомобиля.
+     *
+     * @param brand название бренда
+     */
     @Override
     public void setBrand(String brand) {
-        if (brand == null || brand.isEmpty())
-            throw new IllegalArgumentException("Бренд не может быть пустым");
-
         this.brand = brand;
     }
 
+    /**
+     * Внутренний класс, представляющий модель автомобиля с именем и ценой.
+     */
     private class Model {
         private String name = null;
         private double cost = Double.NaN;
 
+        /**
+         * Конструктор модели.
+         *
+         * @param name имя модели
+         * @param cost цена модели
+         */
         public Model(String name, double cost) {
-            Vehicle.validateName(name);
-            Vehicle.validateCost(cost);
-
             this.name = name;
             this.cost = cost;
         }
 
-        public String getName() { return this.name; }
+        /**
+         * Возвращает имя модели.
+         *
+         * @return имя модели
+         */
+        public String getName() {
+            return this.name;
+        }
 
+        /**
+         * Устанавливает имя модели.
+         *
+         * @param name имя модели
+         */
         public void setName(String name) {
-            Vehicle.validateName(name);
             this.name = name;
         }
 
-        public double getCost() { return this.cost; }
-
-        public void setCost(double cost) {
-            Vehicle.validateCost(cost);
-
-            this.cost = cost;
+        /**
+         * Возвращает цену модели.
+         *
+         * @return цена модели
+         */
+        public double getCost() {
+            return this.cost;
         }
 
+        /**
+         * Устанавливает цену модели.
+         *
+         * @param cost цена модели
+         */
+        public void setCost(double cost) {
+            this.cost = cost;
+        }
     }
 
+    /**
+     * Возвращает массив имен всех моделей автомобиля.
+     *
+     * @return массив имён моделей
+     */
     @Override
     public String[] getModelsName() {
-        String[] names = new String[this.count];
-        for (int i = 0; i < this.count; i++) { names[i] = models[i].getName(); }
-
+        String[] names = new String[models.length];
+        for (int i = 0; i < models.length; i++) {
+            names[i] = models[i].getName();
+        }
         return names;
     }
 
+    /**
+     * Возвращает массив цен всех моделей автомобиля.
+     *
+     * @return массив цен моделей
+     */
     @Override
-    public double[] getModelsCost(){
-        double[] costs = new double[this.count];
-        for(int i = 0; i < this.count; i++) { costs[i] = this.models[i].getCost(); }
+    public double[] getModelsCost() {
+        double[] costs = new double[models.length];
+        for (int i = 0; i < models.length; i++) {
+            costs[i] = this.models[i].getCost();
+        }
         return costs;
     }
 
+    /**
+     * Возвращает цену модели по имени.
+     *
+     * @param name имя модели
+     * @return цена модели
+     * @throws NoSuchModelNameException если модель с указанным именем не найдена
+     */
     @Override
     public double getModelCost(String name) throws NoSuchModelNameException {
-        for (int i = 0; i < this.count; i++) {
+        for (int i = 0; i < models.length; i++) {
             if (models[i].getName().equals(name)) return models[i].getCost();
         }
         throw new NoSuchModelNameException();
     }
 
+    /**
+     * Устанавливает цену модели по имени.
+     *
+     * @param name имя модели
+     * @param cost цена модели
+     * @throws NoSuchModelNameException    если модель с указанным именем не найдена
+     * @throws IllegalArgumentException    если имя модели пустое или null
+     * @throws ModelPriceOutOfBoundsException если цена отрицательная
+     */
     @Override
     public void setModelCost(String name, double cost) throws NoSuchModelNameException {
-        Vehicle.validateName(name);
-        Vehicle.validateCost(cost);
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Имя модели не может быть пустым");
+        }
 
-        for (int i = 0; i < this.count; i++) {
+        if (cost < 0)
+            throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
+
+        for (int i = 0; i < models.length; i++) {
             if (models[i].getName().equals(name)) {
                 models[i].setCost(cost);
                 return;
@@ -96,77 +189,164 @@ public class Automobile implements Vehicle{
         throw new NoSuchModelNameException();
     }
 
+    /**
+     * Изменяет имя существующей модели автомобиля.
+     *
+     * <p>Ищет модель по имени {@code oldName} и присваивает ей новое имя {@code newName}.
+     * Если модель с именем {@code oldName} не найдена, или если уже существует модель с именем {@code newName},
+     * метод генерирует соответствующее исключение.</p>
+     *
+     * @param oldName текущее имя модели
+     * @param newName новое имя модели
+     * @throws NoSuchModelNameException     если модель с именем {@code oldName} не найдена
+     * @throws DuplicateModelNameException  если модель с именем {@code newName} уже существует
+     * @throws IllegalArgumentException     если {@code oldName} или {@code newName} пустые
+     */
     @Override
     public void setModelName(String oldName, String newName) throws NoSuchModelNameException, DuplicateModelNameException {
-        Vehicle.validateName(oldName);
-        Vehicle.validateName(newName);
-
-        checkDuplicate(newName);
-        getModelByName(oldName).setName(newName);
-    }
-
-    @Override
-    public void addModel(String name, double cost) throws DuplicateModelNameException {
-        Vehicle.validateName(name);
-        checkDuplicate(name);
-        Vehicle.validateCost(cost);
-
-        //Че я тут сделал, если количество моделей равно размеру массива, то увеличиваем его путем копирования, а если не, то просто добавляем в след ячейку
-        if (this.count == models.length)
-            models = Arrays.copyOf(models, models.length + 1);
-
-        models[this.count] = new Model(name, cost);
-        this.count++;
-    }
-
-    @Override
-    public void removeModel(String name) throws NoSuchModelNameException{
-        Vehicle.validateName(name);
-
-        int index = -1;
-        for(int i = 0; i < this.count && index == -1; i++){
-            if(this.models[i].getName().equals(name)) { index = i; }
+        if (oldName == null || oldName.isEmpty() || newName == null || newName.isEmpty()) {
+            throw new IllegalArgumentException("Имя модели не может быть пустым");
         }
 
-        if(index == -1){ throw new NoSuchModelNameException(); }
+        int index = -1;
 
-        /*
-        //я кароч добавил count, чтоб смореть кол-во и, по идее, можно искать модель по имени, потом сдвигать ее вправо, в последнюю ячейку и удалять ее, но тогда размер массива не будет уменьшаться.
-        for (int i = index; i < this.count - 1; i++)
-            models[i] = models[i + 1];
+        for (int i = 0; i < models.length; i++) {
+            if (newName.equals(models[i].name)) {
+                throw new DuplicateModelNameException();
+            }
 
-        this.count--;
-        models[this.count] = null;
-        */
+            if (index == -1 && oldName.equals(models[i].name)) {
+                index = i;
+            }
+        }
 
-        Model[] newModels = new Model[models.length - 1];
-
-        if (index > 0)
-            System.arraycopy(models, 0, newModels, 0, index);
-
-        if (index < this.count - 1)
-            System.arraycopy(models, index + 1, newModels, index, this.count - index - 1);
-
-        models = Arrays.copyOf(newModels, newModels.length);
-        this.count--;
+        if (index != -1)
+            models[index].setName(newName);
+        else
+            throw new NoSuchModelNameException();
     }
 
+    /**
+     * Добавляет модель автомобиля в конец списка моделей.
+     *
+     * @param name имя модели
+     * @param cost цена модели
+     * @throws DuplicateModelNameException   если модель с таким именем уже существует
+     * @throws IllegalArgumentException      если имя пустое или null
+     * @throws ModelPriceOutOfBoundsException если цена отрицательная
+     */
     @Override
-    public int getSize() { return this.count ; }
+    public void addModel(String name, double cost) throws DuplicateModelNameException {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Имя модели не может быть пустым");
+        }
 
-    private Model getModelByName(String name) throws NoSuchModelNameException{
-        for (int i = 0; i < this.count; i++){
-            if(models[i].getName().equals(name))
+        if (cost < 0)
+            throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
+
+        checkDuplicate(name);
+
+        models = Arrays.copyOf(models, models.length + 1);
+        models[models.length - 1] = new Model(name, cost);
+    }
+
+    /**
+     * Удаляет модель автомобиля по имени.
+     *
+     * @param name имя модели
+     * @throws NoSuchModelNameException если модель с указанным именем не найдена
+     */
+    @Override
+    public void removeModel(String name) throws NoSuchModelNameException {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Имя модели не может быть пустым");
+        }
+
+        int index = -1;
+        for (int i = 0; i < models.length; i++) {
+            if (this.models[i].getName().equals(name)) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1) {
+            throw new NoSuchModelNameException();
+        }
+
+        System.arraycopy(models, index + 1, models, index, models.length - index - 1);
+        models = Arrays.copyOf(models, models.length - 1);
+    }
+
+    /**
+     * Сравнивает текущее транспортное средство с другим объектом.
+     *
+     * <p>Метод возвращает {@code true} только если объект {@code obj} является {@link Vehicle},
+     * и имеет тот же бренд, список моделей и цены моделей.</p>
+     *
+     * @param obj объект для сравнения
+     * @return {@code true}, если объекты равны по бренду, моделям и ценам моделей
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+
+        if (obj instanceof Vehicle comparableVehicle) {
+            if (!this.getBrand().equals(comparableVehicle.getBrand())) return false;
+            if (!Arrays.equals(this.getModelsName(), comparableVehicle.getModelsName())) return false;
+            if (!Arrays.equals(this.getModelsCost(), comparableVehicle.getModelsCost())) return false;
+
+            return true;
+        } else return false;
+    }
+
+    /**
+     * Вычисляет hashCode автомобиля, основываясь на бренде, именах и ценах моделей.
+     *
+     * @return hash-код объекта
+     */
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(this.brand);
+        result = 31 * result + Arrays.hashCode(this.getModelsName());
+        result = 31 * result + Arrays.hashCode(this.getModelsCost());
+        return result;
+    }
+
+    /**
+     * Возвращает количество моделей автомобиля.
+     *
+     * @return размер массива моделей
+     */
+    @Override
+    public int getSize() {
+        return models.length;
+    }
+
+    /**
+     * Получает модель по имени.
+     *
+     * @param name имя модели
+     * @return модель с указанным именем
+     * @throws NoSuchModelNameException если модель не найдена
+     */
+    private Model getModelByName(String name) throws NoSuchModelNameException {
+        for (int i = 0; i < models.length; i++) {
+            if (models[i].getName().equals(name))
                 return models[i];
         }
         throw new NoSuchModelNameException();
     }
 
+    /**
+     * Проверяет, существует ли модель с указанным именем.
+     *
+     * @param name имя модели для проверки
+     * @throws DuplicateModelNameException если модель с таким именем уже существует
+     */
     private void checkDuplicate(String name) throws DuplicateModelNameException {
-        for (int i = 0; i < this.count; i++) {
+        for (int i = 0; i < models.length; i++) {
             if (models[i].getName().equals(name)) throw new DuplicateModelNameException();
         }
     }
-
-
 }

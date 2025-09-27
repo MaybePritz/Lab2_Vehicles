@@ -2,6 +2,8 @@ package vehicles;
 
 import exceptions.*;
 
+import java.util.Arrays;
+
 public interface Vehicle {
     String getBrand();
     void setBrand(String brand);
@@ -17,16 +19,9 @@ public interface Vehicle {
     void addModel(String name, double cost) throws DuplicateModelNameException;
     void removeModel(String name) throws NoSuchModelNameException;
 
+    boolean equals(Object obj);
+
+    int hashCode();
+
     int getSize();
-
-    public static void validateName(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Имя модели не может быть пустым");
-        }
-    }
-
-    public static void validateCost(double cost) {
-        if (cost < 0)
-            throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
-    }
 }

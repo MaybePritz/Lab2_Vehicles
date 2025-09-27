@@ -2,18 +2,19 @@ package vehicles;
 
 import exceptions.*;
 
-public class Motocycle implements Vehicle{
+import java.io.Serializable;
+import java.util.Arrays;
+
+public class Motocycle implements Vehicle, Serializable{
 
     // ------------- Класс модели ------------- //
-    private class Model {
+    private static class Model implements Serializable {
         private String name = null;
         private double cost = Double.NaN;
         private Model next =  null;
         private Model prev = null;
 
         public Model(String name, double cost) {
-            Vehicle.validateCost(cost);
-
             this.name = name;
             this.cost = cost;
         }
@@ -21,14 +22,12 @@ public class Motocycle implements Vehicle{
         public String getName() { return name; }
 
         public void setName(String name) {
-            Vehicle.validateName(name);
             this.name = name;
         }
 
         public double getCost() { return cost; }
 
         public void setCost(double cost) {
-            Vehicle.validateCost(cost);
             this.cost = cost;
         }
     }
@@ -37,16 +36,17 @@ public class Motocycle implements Vehicle{
     private int size = 0;
     private String brand = null;
     private Model head = null;
-    private long lastModified = 0;
+    private transient long lastModified = 0;
 
     {
         lastModified = System.currentTimeMillis();
+
         head = new Model(null, 0);
         head.next = head;
         head.prev = head;
     }
 
-    public Motocycle(String brand, int size) {//size
+    public Motocycle(String brand, int size) throws DuplicateModelNameException {//size
         if (brand == null || brand.isEmpty())
             throw new IllegalArgumentException("Бренд не может быть пустым");
         if (size < 0)
@@ -54,13 +54,7 @@ public class Motocycle implements Vehicle{
         else {
             this.brand = brand;
             for (int i = 0; i < size; i++) {
-                Model node = new Model("Model" + (i + 1), 0);
-                Model last = head.prev;
-                last.next = node;
-                node.prev = last;
-                node.next = head;
-                head.prev = node;
-                this.size++;
+                this.addModel("Модель" + (i + 1), 0);
             }
         }
     }
@@ -88,29 +82,55 @@ public class Motocycle implements Vehicle{
     }
 
     @Override
-    public void setModelName(String oldName, String newName) //Добавлена проверка на дубликат
+    public void setModelName(String oldName, String newName)
             throws NoSuchModelNameException, DuplicateModelNameException {
-        Vehicle.validateName(oldName);
-        Vehicle.validateName(newName);
 
-        checkDuplicate(newName);
+        if (oldName == null || oldName.isEmpty() || newName == null || newName.isEmpty()) {
+            throw new IllegalArgumentException("Имя модели не может быть пустым");
+        }
 
-        Model node = getModelByName(oldName);
-        node.setName(newName);
-        this.lastModified = System.currentTimeMillis();
+        Model p = head.next;
+
+        if (p.next == head) {
+            throw new NoSuchModelNameException();
+        }
+
+        Model findModel = null;
+        while(p != head){
+            if(newName.equals(p.name)){
+                throw new DuplicateModelNameException();
+            }
+            if(findModel == null && oldName.equals(p.name)){
+                findModel = p;
+            }
+            p = p.next;
+        }
+        if(findModel == null){
+            throw new NoSuchModelNameException();
+        }
+        else{
+            findModel.setName(newName);
+            this.lastModified = System.currentTimeMillis();
+        }
     }
-
 
     @Override
     public double getModelCost(String name) throws NoSuchModelNameException {
-        Vehicle.validateName(name);
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Имя модели не может быть пустым");
+        }
+
         return getModelByName(name).getCost();
     }
 
     @Override
     public void setModelCost(String name, double cost) throws NoSuchModelNameException{
-        Vehicle.validateName(name);
-        Vehicle.validateCost(cost);
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Имя модели не может быть пустым");
+        }
+
+        if (cost < 0)
+            throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
 
         getModelByName(name).setCost(cost);
         this.lastModified = System.currentTimeMillis();
@@ -118,8 +138,12 @@ public class Motocycle implements Vehicle{
 
     @Override
     public void addModel(String name, double cost) throws DuplicateModelNameException { //Переделал голову, теперь меньше проверок
-        Vehicle.validateName(name);
-        Vehicle.validateCost(cost);
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Имя модели не может быть пустым");
+        }
+
+        if (cost < 0)
+            throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
 
         checkDuplicate(name);
 
@@ -138,7 +162,9 @@ public class Motocycle implements Vehicle{
 
     @Override
     public void removeModel(String name) throws NoSuchModelNameException {
-        Vehicle.validateName(name);
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Имя модели не может быть пустым");
+        }
 
         if(head != null) {
             Model node = getModelByName(name);
@@ -150,6 +176,22 @@ public class Motocycle implements Vehicle{
             this.lastModified = System.currentTimeMillis();
         }
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) return true;
+
+        if(obj instanceof Vehicle comparableVehicle) {
+
+            if(!this.getBrand().equals(comparableVehicle.getBrand()))  return false;
+
+            if(!Arrays.equals(this.getModelsName(), comparableVehicle.getModelsName()))  return false;
+            if(!Arrays.equals(this.getModelsCost(), comparableVehicle.getModelsCost()))  return false;
+
+            return  true;
+        }
+        else return false;
+    };
 
     @Override
     public int getSize() { return this.size; }
