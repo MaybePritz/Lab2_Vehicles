@@ -83,7 +83,7 @@ public class Main {
         }
 
         try {
-            Vehicle auto = new Automobile("Škoda", 10);
+            Vehicle auto = new Automobile("Škoda", 100);
             auto.addModel("Octavia", 3000000);
             auto.addModel("Yeti", 2000000);
 

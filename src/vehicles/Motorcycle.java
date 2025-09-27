@@ -4,6 +4,7 @@ import exceptions.*;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class Motorcycle implements Vehicle, Serializable{
 
@@ -180,6 +181,7 @@ public class Motorcycle implements Vehicle, Serializable{
     @Override
     public boolean equals(Object obj) {
         if(this == obj) return true;
+        if(this.hashCode() == obj.hashCode()) return true;
 
         if(obj instanceof Vehicle comparableVehicle) {
 
@@ -189,6 +191,14 @@ public class Motorcycle implements Vehicle, Serializable{
             return Arrays.equals(this.getModelsCost(), comparableVehicle.getModelsCost());
         }
         else return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(this.brand);
+        result = 31 * result + Arrays.hashCode(this.getModelsName());
+        result = 31 * result + Arrays.hashCode(this.getModelsCost());
+        return result;
     }
 
     @Override

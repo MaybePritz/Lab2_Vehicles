@@ -27,14 +27,18 @@ public final class VehicleUtils{
         double[] prices = vehicle.getModelsCost();
         String[] models = vehicle.getModelsName();
 
+        StringBuilder sb = new StringBuilder();
+
         if (prices == null || prices.length == 0) {
-            System.out.println("Список цен пуст");
+            sb.append("Список цен пуст\n");
         } else {
-            for(int i = 0; i < models.length; i++)
-                System.out.println(" " + models[i] + " -> " + prices[i]);
+            for (int i = 0; i < models.length; i++) {
+                sb.append(" ").append(models[i]).append(" -> ").append(prices[i]).append("\n");
+            }
         }
 
-        System.out.println();
+        sb.append("\n");
+        System.out.print(sb);
     }
 
     public static boolean compareVehicles(Vehicle vehicle1, Vehicle vehicle2){
