@@ -5,7 +5,7 @@ import exceptions.*;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class Motocycle implements Vehicle, Serializable{
+public class Motorcycle implements Vehicle, Serializable{
 
     // ------------- Класс модели ------------- //
     private static class Model implements Serializable {
@@ -46,7 +46,7 @@ public class Motocycle implements Vehicle, Serializable{
         head.prev = head;
     }
 
-    public Motocycle(String brand, int size) throws DuplicateModelNameException {//size
+    public Motorcycle(String brand, int size) throws DuplicateModelNameException {//size
         if (brand == null || brand.isEmpty())
             throw new IllegalArgumentException("Бренд не может быть пустым");
         if (size < 0)

@@ -11,8 +11,8 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         String[] options = {
-                "Лаба №2",
-                "Лаба №3",
+                "Лаб №2",
+                "Лаб №3",
                 "Выход"
         };
 
@@ -43,9 +43,9 @@ public class Main {
     }
 
     private static void testLab2() {
-        System.out.println("=".repeat(25) + " Лаба №2 " + "=".repeat(25));
+        System.out.println("=".repeat(25) + " Лаб №2 " + "=".repeat(25));
         try {
-            Vehicle auto = new Automobile("Skoda", 10);
+            Vehicle auto = new Automobile("Škoda", 10);
 
             auto.addModel("Octavia", 3000000);
             auto.addModel("Yeti", 2000000);
@@ -72,10 +72,10 @@ public class Main {
     }
 
     private static void testLab3() {
-        System.out.println("=".repeat(25) + " Лаба №3 " + "=".repeat(25));
+        System.out.println("=".repeat(25) + " Лаб №3 " + "=".repeat(25));
 
         try {
-            Vehicle auto = new Automobile("Skoda", 10);
+            Vehicle auto = new Automobile("Škoda", 10);
             auto.addModel("Octavia", 3000000);
             auto.addModel("Yeti", 2000000);
 
@@ -110,13 +110,13 @@ public class Main {
             System.out.println("✅ Объект успешно прочитан из файла 'data/car.text'");
 
 
-            Vehicle moto = new Motocycle("Honda", 2);
+            Vehicle moto = new Motorcycle("Honda", 2);
             moto.setModelCost("Модель1", 500000);
             moto.setModelCost("Модель2", 600000);
             moto.addModel("CB500", 650000);
             moto.addModel("CBR1000RR", 1500000);
 
-            System.out.println("\n6) Исходный объект Vehicle (Motocycle):");
+            System.out.println("\n6) Исходный объект Vehicle ( Motorcycle ):");
             System.out.println("Бренд: " + moto.getBrand());
             VehicleUtils.printModelsPrices(moto);
 
@@ -155,7 +155,7 @@ public class Main {
                 System.out.println("❌ Автомобиль НЕ совпадает с символьным восстановлением");
             }
 
-            System.out.println("\nИсходный объект (Motocycle):");
+            System.out.println("\nИсходный объект ( Motorcycle ):");
             VehicleUtils.printModelsPrices(moto);
 
             System.out.println("\nВосстановленный объект после сериализации:");
@@ -170,7 +170,7 @@ public class Main {
         } catch (DuplicateModelNameException | NoSuchModelNameException | IOException | ClassNotFoundException e) {
             System.err.println("❌ Ошибка: " + e.getMessage());
         } finally {
-            System.out.println("=".repeat(25) + " Конец Лабы №3 " + "=".repeat(25));
+            System.out.println("=".repeat(25) + " Конец Лаб №3 " + "=".repeat(25));
         }
     }
 
