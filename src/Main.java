@@ -6,7 +6,6 @@ import java.io.*;
 import java.util.Scanner;
 
 public class Main {
-
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
@@ -74,12 +73,21 @@ public class Main {
     private static void testLab3() {
         System.out.println("=".repeat(25) + " Лаб №3 " + "=".repeat(25));
 
+        File dataDir = new File("data");
+        if (!dataDir.exists()) {
+            if (dataDir.mkdirs()) {
+                System.out.println("✅ Папка 'data' создана");
+            } else {
+                System.out.println("❌ Не удалось создать папку 'data'");
+            }
+        }
+
         try {
             Vehicle auto = new Automobile("Škoda", 10);
             auto.addModel("Octavia", 3000000);
             auto.addModel("Yeti", 2000000);
 
-            System.out.println("1) Исходный объект Vehicle (Automobile):");
+            System.out.println("\n21) Исходный объект Vehicle (Automobile):");
             System.out.println("Бренд: " + auto.getBrand());
             VehicleUtils.printModelsPrices(auto);
 
