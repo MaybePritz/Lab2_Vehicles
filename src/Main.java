@@ -1,4 +1,5 @@
 import exceptions.*;
+import utils.VehicleUtils;
 import vehicles.*;
 
 import java.io.*;
@@ -6,7 +7,7 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
         String[] options = {
@@ -24,52 +25,50 @@ public class Main {
 
         String choice = scanner.nextLine();
 
-        try {
-            switch (choice) {
-                case "1":
-                    testLab2();
-                    break;
-                case "2":
-                    testLab3();
-                    break;
-                case "3":
-                    System.out.println("Выход...");
-                    break;
-                default:
-                    System.out.println("Неверный выбор.");
-            }
-        } catch (DuplicateModelNameException | NoSuchModelNameException e) {
-            System.out.println("ОШИБКА: " + e.getMessage());
+        switch (choice) {
+            case "1":
+                testLab2();
+                break;
+            case "2":
+                testLab3();
+                break;
+            case "3":
+                System.out.println("Выход...");
+                break;
+            default:
+                System.out.println("Неверный выбор.");
         }
 
         scanner.close();
     }
 
-    private static void testLab2() throws DuplicateModelNameException, NoSuchModelNameException {
+    private static void testLab2() {
         System.out.println("=".repeat(25) + " Лаба №2 " + "=".repeat(25));
+        try {
+            Vehicle auto = new Automobile("Skoda", 10);
 
-        Vehicle auto = new Automobile("Skoda", 10);
+            auto.addModel("Octavia", 3000000);
+            auto.addModel("Yeti", 2000000);
 
-        auto.addModel("Octavia", 3000000);
-        auto.addModel("Yeti", 2000000);
+            System.out.println("Список моделей " + auto.getBrand() + " и цен:");
+            VehicleUtils.printModelsPrices(auto);
 
-        System.out.println("Список моделей " + auto.getBrand() + " и цен:");
-        VehicleUtils.printModelsPrices(auto);
+            System.out.println("Средняя цена: " + VehicleUtils.averagePrice(auto));
+            System.out.println();
 
-        System.out.println("Средняя цена: " + VehicleUtils.averagePrice(auto));
-        System.out.println();
+            auto.setModelCost("Octavia", 3100000);
+            System.out.println("Цена Octavia после изменения: " + auto.getModelCost("Octavia"));
+            System.out.println();
 
-        auto.setModelCost("Octavia", 3100000);
-        System.out.println("Цена Octavia после изменения: " + auto.getModelCost("Octavia"));
-        System.out.println();
+            auto.setModelName("Yeti", "Rapid");
+            System.out.println("Список моделей " + auto.getBrand() + " после переименования:");
+            VehicleUtils.printModelsPrices(auto);
 
-        auto.setModelName("Yeti", "Rapid");
-        System.out.println("Список моделей " + auto.getBrand() + " после переименования:");
-        VehicleUtils.printModelsPrices(auto);
-
-        auto.removeModel("Rapid");
-        System.out.println("Количество моделей после удаления: " + auto.getSize());
-
+            auto.removeModel("Rapid");
+            System.out.println("Количество моделей после удаления: " + auto.getSize());
+        } catch (DuplicateModelNameException | NoSuchModelNameException e) {
+            System.out.println("❌ Ошибка: " + e.getMessage());
+        }
     }
 
     private static void testLab3() {
@@ -168,21 +167,11 @@ public class Main {
                 System.out.println("❌ Мотоцикл НЕ совпадает с восстановленным объектом");
             }
 
-        } catch (DuplicateModelNameException e) {
-            System.err.println("❌ Ошибка: добавлена модель с дублирующим именем → " + e.getMessage());
-        } catch (NoSuchModelNameException e) {
-            System.err.println("❌ Ошибка: не найдена модель → " + e.getMessage());
-        } catch (ModelPriceOutOfBoundsException e) {
-            System.err.println("❌ Ошибка: некорректная цена модели → " + e.getMessage());
-        } catch (IOException e) {
-            System.err.println("❌ Ошибка ввода-вывода → " + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            System.err.println("❌ Ошибка при десериализации: класс не найден → " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("❌ Непредвиденная ошибка: " + e);
+        } catch (DuplicateModelNameException | NoSuchModelNameException | IOException | ClassNotFoundException e) {
+            System.err.println("❌ Ошибка: " + e.getMessage());
+        } finally {
+            System.out.println("=".repeat(25) + " Конец Лабы №3 " + "=".repeat(25));
         }
-
-        System.out.println("=".repeat(25) + " Конец Лабы №3 " + "=".repeat(25));
     }
 
 }

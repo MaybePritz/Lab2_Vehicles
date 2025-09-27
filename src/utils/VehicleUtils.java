@@ -1,6 +1,8 @@
-package vehicles;
+package utils;
 
 import exceptions.DuplicateModelNameException;
+import vehicles.Automobile;
+import vehicles.Vehicle;
 
 import java.io.*;
 import java.util.Arrays;
