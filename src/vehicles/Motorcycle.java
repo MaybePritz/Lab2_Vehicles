@@ -186,12 +186,10 @@ public class Motorcycle implements Vehicle, Serializable{
             if(!this.getBrand().equals(comparableVehicle.getBrand()))  return false;
 
             if(!Arrays.equals(this.getModelsName(), comparableVehicle.getModelsName()))  return false;
-            if(!Arrays.equals(this.getModelsCost(), comparableVehicle.getModelsCost()))  return false;
-
-            return  true;
+            return Arrays.equals(this.getModelsCost(), comparableVehicle.getModelsCost());
         }
         else return false;
-    };
+    }
 
     @Override
     public int getSize() { return this.size; }
