@@ -221,8 +221,9 @@ public class Motorcycle implements Vehicle, Serializable{
 
         return sb.toString();
     }
-    @Override
-    public Object clone() { Object clone = null; return clone;}
+
+//    @Override
+//    public Object clone() { Object clone = null; return clone;}
 
     @Override
     public int getSize() { return this.size; }

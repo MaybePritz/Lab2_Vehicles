@@ -35,7 +35,7 @@ public class Automobile implements Vehicle, Serializable {
         this.brand = brand;
     }
 
-    private class Model implements Cloneable {
+    private class Model implements Serializable, Cloneable {
         private String name = null;
         private double cost = Double.NaN;
 
@@ -60,13 +60,13 @@ public class Automobile implements Vehicle, Serializable {
             this.cost = cost;
         }
 
-        protected Object clone() {
-            Object cloned = null;
-            try {
-                cloned = super.clone();
-            } catch (CloneNotSupportedException e) {}
-            return cloned;
-        }
+//        protected Object clone() {
+//            Object cloned = null;
+//            try {
+//                cloned = super.clone();
+//            } catch (CloneNotSupportedException e) {}
+//            return cloned;
+//        }
     }
 
     @Override
@@ -206,18 +206,18 @@ public class Automobile implements Vehicle, Serializable {
         return sb.toString();
     }
 
-    @Override
-    public Object clone() {
-        Automobile cloned = null;
-        try {
-            cloned = (Automobile) super.clone();
-            cloned.models = new Model[this.getSize()];
-            for (int i = 0; i < cloned.models.length; i++) {
-                cloned.models[i] = (Model) this.models[i].clone();
-            }
-        } catch (CloneNotSupportedException ex) { }
-        return cloned;
-    }
+//    @Override
+//    public Object clone() {
+//        Automobile cloned = null;
+//        try {
+//            cloned = (Automobile) super.clone();
+//            cloned.models = new Model[this.getSize()];
+//            for (int i = 0; i < cloned.models.length; i++) {
+//                cloned.models[i] = (Model) this.models[i].clone();
+//            }
+//        } catch (CloneNotSupportedException ex) { }
+//        return cloned;
+//    }
 
     @Override
     public int getSize() {

@@ -83,7 +83,7 @@ public class Main {
         }
 
         try {
-            Vehicle auto = new Automobile("Škoda", 12);
+            Vehicle auto = new Automobile("Škoda", 1);
             auto.addModel("Octavia", 3000000);
             auto.addModel("Yeti", 2000000);
 
@@ -113,29 +113,18 @@ public class Main {
             System.out.println("\n6) Восстановленный объект:");
             VehicleUtils.printModelsPrices(readAuto);
 
-
-            Vehicle moto = new Motorcycle("Honda", 2);
-            moto.setModelCost("Модель1", 500000);
-            moto.setModelCost("Модель2", 600000);
-            moto.addModel("CB500", 650000);
-            moto.addModel("CBR1000RR", 1500000);
-
-            System.out.println("\n6) Исходный объект Vehicle ( Motorcycle ):");
-            System.out.println("Бренд: " + moto.getBrand());
-            VehicleUtils.printModelsPrices(moto);
-
-            System.out.println("\n7) Сохранение объекта в файл 'data/moto.ser'...");
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("data/moto.ser"))) {
-                oos.writeObject(moto);
+            System.out.println("\n7) Сохранение объекта в файл 'data/auto.ser'...");
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("data/auto.ser"))) {
+                oos.writeObject(auto);
             }
-            System.out.println("✅ Объект успешно сериализован в 'data/moto.ser'");
+            System.out.println("✅ Объект успешно сериализован в 'data/auto.ser'");
 
-            System.out.println("\n8) Чтение объекта из файла 'data/moto.ser'...");
-            Vehicle restoredMoto;
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("data/moto.ser"))) {
-                restoredMoto = (Vehicle) ois.readObject();
+            System.out.println("\n8) Чтение объекта из файла 'data/auto.ser'...");
+            Vehicle restoredAuto;
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("data/auto.ser"))) {
+                restoredAuto = (Vehicle) ois.readObject();
             }
-            System.out.println("✅ Объект успешно восстановлен из 'data/moto.ser'");
+            System.out.println("✅ Объект успешно восстановлен из 'data/auto.ser'");
             
             System.out.println("\n9) Проверки:");
             System.out.println("\nИсходный объект (Automobile):");
@@ -159,19 +148,16 @@ public class Main {
                 System.out.println("❌ Автомобиль НЕ совпадает с символьным восстановлением");
             }
 
-            System.out.println("\nИсходный объект ( Motorcycle ):");
-            VehicleUtils.printModelsPrices(moto);
-
             System.out.println("\nВосстановленный объект после сериализации:");
-            VehicleUtils.printModelsPrices(restoredMoto);
+            VehicleUtils.printModelsPrices(restoredAuto);
 
-            if (moto.equals(restoredMoto)) {
-                System.out.println("✅ Мотоцикл совпадает с восстановленным объектом");
+            if (auto.equals(restoredAuto)) {
+                System.out.println("✅ Автомобиль совпадает с восстановленным объектом");
             } else {
-                System.out.println("❌ Мотоцикл НЕ совпадает с восстановленным объектом");
+                System.out.println("❌ Автомобиль НЕ совпадает с восстановленным объектом");
             }
 
-        } catch (DuplicateModelNameException | NoSuchModelNameException | IOException | ClassNotFoundException e) {
+        } catch (DuplicateModelNameException | IOException | ClassNotFoundException e) {
             System.err.println("❌ Ошибка: " + e.getMessage());
         } finally {
             System.out.println("=".repeat(25) + " Конец Лаб №3 " + "=".repeat(25));
