@@ -23,5 +23,9 @@ public interface Vehicle {
 
     int hashCode();
 
+    String toString();
+
+    Object clone();
+
     int getSize();
 }

@@ -202,6 +202,29 @@ public class Motorcycle implements Vehicle, Serializable{
     }
 
     @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+
+        String[] names = getModelsName();
+        double[] costs = getModelsCost();
+
+        sb.append("Мотоцикл: ")
+                .append(brand)
+                .append("\n");
+
+        for (int i = 0; i < this.size; i++) {
+            sb.append(names[i])
+                    .append(" -> ")
+                    .append(costs[i])
+                    .append("\n");
+        }
+
+        return sb.toString();
+    }
+    @Override
+    public Object clone() { Object clone = null; return clone;}
+
+    @Override
     public int getSize() { return this.size; }
     @Override
     public String getBrand() { return this.brand; }
