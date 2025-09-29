@@ -44,7 +44,7 @@ public class Main {
     private static void testLab2() {
         System.out.println("=".repeat(25) + " Лаб №2 " + "=".repeat(25));
         try {
-            Vehicle auto = new Automobile("Škoda", 10);
+            Vehicle auto = new Automobile("Škoda", 1);
 
             auto.addModel("Octavia", 3000000);
             auto.addModel("Yeti", 2000000);
@@ -83,11 +83,11 @@ public class Main {
         }
 
         try {
-            Vehicle auto = new Automobile("Škoda", 100);
+            Vehicle auto = new Automobile("Škoda", 12);
             auto.addModel("Octavia", 3000000);
             auto.addModel("Yeti", 2000000);
 
-            System.out.println("\n21) Исходный объект Vehicle (Automobile):");
+            System.out.println("\n1) Исходный объект Vehicle (Automobile):");
             System.out.println("Бренд: " + auto.getBrand());
             VehicleUtils.printModelsPrices(auto);
 
@@ -104,18 +104,14 @@ public class Main {
             }
             System.out.println("✅ Объект успешно прочитан из файла 'data/car.dat'");
 
-            System.out.println("\n4) Сохранение объекта в символьный файл 'data/car.text'...");
-            try (FileWriter fw = new FileWriter("data/car.text")) {
-                VehicleUtils.writeVehicle(auto, fw);
-            }
-            System.out.println("✅ Объект успешно записан в файл 'data/car.text'");
+            System.out.println("\n4) Запись объекта в консоль (символьный поток): \n");
+            VehicleUtils.writeVehicle(auto, new OutputStreamWriter(System.out));
 
-            System.out.println("\n5) Чтение объекта из символьного файла 'data/car.text'...");
-            Vehicle readAuto;
-            try (FileReader fr = new FileReader("data/car.text")) {
-                readAuto = VehicleUtils.readVehicle(fr);
-            }
-            System.out.println("✅ Объект успешно прочитан из файла 'data/car.text'");
+            System.out.println("\n5)Скопируйте текст выше и вставьте его сюда (для восстановления):");
+            Vehicle readAuto = VehicleUtils.readVehicle(new InputStreamReader(System.in));
+
+            System.out.println("\n6) Восстановленный объект:");
+            VehicleUtils.printModelsPrices(readAuto);
 
 
             Vehicle moto = new Motorcycle("Honda", 2);
@@ -148,7 +144,7 @@ public class Main {
             System.out.println("\nВосстановленный объект из бинарного файла:");
             VehicleUtils.printModelsPrices(restored);
 
-            if (VehicleUtils.compareVehicles(auto, restored)) {
+            if (auto.equals(restored)) {
                 System.out.println("✅ Автомобиль совпадает с бинарным восстановлением");
             } else {
                 System.out.println("❌ Автомобиль НЕ совпадает с бинарным восстановлением");
@@ -157,7 +153,7 @@ public class Main {
             System.out.println("\nВосстановленный объект из символьного файла:");
             VehicleUtils.printModelsPrices(readAuto);
 
-            if (VehicleUtils.compareVehicles(auto, readAuto)) {
+            if (auto.equals(readAuto)) {
                 System.out.println("✅ Автомобиль совпадает с символьным восстановлением");
             } else {
                 System.out.println("❌ Автомобиль НЕ совпадает с символьным восстановлением");
@@ -169,7 +165,7 @@ public class Main {
             System.out.println("\nВосстановленный объект после сериализации:");
             VehicleUtils.printModelsPrices(restoredMoto);
 
-            if (VehicleUtils.compareVehicles(moto, restoredMoto)) {
+            if (moto.equals(restoredMoto)) {
                 System.out.println("✅ Мотоцикл совпадает с восстановленным объектом");
             } else {
                 System.out.println("❌ Мотоцикл НЕ совпадает с восстановленным объектом");
