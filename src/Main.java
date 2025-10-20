@@ -12,6 +12,7 @@ public class Main {
         String[] options = {
                 "Лаб №2",
                 "Лаб №3",
+                "Лаб №4",
                 "Выход"
         };
 
@@ -32,6 +33,9 @@ public class Main {
                 testLab3();
                 break;
             case "3":
+                testLab4();
+                break;
+            case "4":
                 System.out.println("Выход...");
                 break;
             default:
@@ -66,7 +70,7 @@ public class Main {
             auto.removeModel("Rapid");
             System.out.println("Количество моделей после удаления: " + auto.getSize());
         } catch (DuplicateModelNameException | NoSuchModelNameException e) {
-            System.out.println("❌ Ошибка: " + e.getMessage());
+            System.out.println("Ошибка: " + e.getMessage());
         }
     }
 
@@ -76,9 +80,9 @@ public class Main {
         File dataDir = new File("data");
         if (!dataDir.exists()) {
             if (dataDir.mkdirs()) {
-                System.out.println("✅ Папка 'data' создана");
+                System.out.println("Папка 'data' создана");
             } else {
-                System.out.println("❌ Не удалось создать папку 'data'");
+                System.out.println("Не удалось создать папку 'data'");
             }
         }
 
@@ -95,38 +99,51 @@ public class Main {
             try (FileOutputStream fos = new FileOutputStream("data/car.dat")) {
                 VehicleUtils.outputVehicle(auto, fos);
             }
-            System.out.println("✅ Объект успешно записан в файл 'data/car.dat'");
+            System.out.println("Объект успешно записан в файл 'data/car.dat'");
 
             System.out.println("\n3) Чтение объекта из бинарного файла 'data/car.dat'...");
             Vehicle restored;
             try (FileInputStream fis = new FileInputStream("data/car.dat")) {
                 restored = VehicleUtils.inputVehicle(fis);
             }
-            System.out.println("✅ Объект успешно прочитан из файла 'data/car.dat'");
+            System.out.println("Объект успешно прочитан из файла 'data/car.dat'");
 
-            System.out.println("\n4) Запись объекта в консоль (символьный поток): \n");
+            System.out.println("\n4) Сохранение объекта в символьный файл 'data/car.text'...");
+            try (FileWriter fwr = new FileWriter("data/car.txt")) {
+                VehicleUtils.writeVehicle(auto, fwr);
+            }
+            System.out.println("Объект успешно записан в символьный файл 'data/car.txt'");
+
+            System.out.println("\n5) Чтение объекта из бинарного файла 'data/car.dat'...");
+            Vehicle readedAuto;
+            try (FileReader reader = new FileReader("data/car.txt")) {
+                readedAuto = VehicleUtils.readVehicle(reader);
+            }
+            System.out.println("Объект успешно прочитан из символьного файла");
+
+            System.out.println("\n7) Запись объекта в консоль (символьный поток): \n");
             VehicleUtils.writeVehicle(auto, new OutputStreamWriter(System.out));
 
-            System.out.println("\n5)Скопируйте текст выше и вставьте его сюда (для восстановления):");
+            System.out.println("\n8)Скопируйте текст выше и вставьте его сюда (для восстановления):");
             Vehicle readAuto = VehicleUtils.readVehicle(new InputStreamReader(System.in));
 
-            System.out.println("\n6) Восстановленный объект:");
+            System.out.println("\n9) Восстановленный объект:");
             VehicleUtils.printModelsPrices(readAuto);
 
-            System.out.println("\n7) Сохранение объекта в файл 'data/auto.ser'...");
+            System.out.println("\n10) Сохранение объекта в файл 'data/auto.ser'...");
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("data/auto.ser"))) {
                 oos.writeObject(auto);
             }
-            System.out.println("✅ Объект успешно сериализован в 'data/auto.ser'");
+            System.out.println("Объект успешно сериализован в 'data/auto.ser'");
 
-            System.out.println("\n8) Чтение объекта из файла 'data/auto.ser'...");
+            System.out.println("\n11) Чтение объекта из файла 'data/auto.ser'...");
             Vehicle restoredAuto;
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("data/auto.ser"))) {
                 restoredAuto = (Vehicle) ois.readObject();
             }
-            System.out.println("✅ Объект успешно восстановлен из 'data/auto.ser'");
+            System.out.println("Объект успешно восстановлен из 'data/auto.ser'");
             
-            System.out.println("\n9) Проверки:");
+            System.out.println("\n12) Проверки:");
             System.out.println("\nИсходный объект (Automobile):");
             VehicleUtils.printModelsPrices(auto);
 
@@ -134,34 +151,59 @@ public class Main {
             VehicleUtils.printModelsPrices(restored);
 
             if (auto.equals(restored)) {
-                System.out.println("✅ Автомобиль совпадает с бинарным восстановлением");
+                System.out.println("Автомобиль совпадает с бинарным восстановлением");
             } else {
-                System.out.println("❌ Автомобиль НЕ совпадает с бинарным восстановлением");
+                System.out.println("Автомобиль НЕ совпадает с бинарным восстановлением");
             }
 
             System.out.println("\nВосстановленный объект из символьного файла:");
+            VehicleUtils.printModelsPrices(readedAuto);
+
+            if (auto.equals(readedAuto)) {
+                System.out.println("Автомобиль совпадает с символьным восстановлением");
+            } else {
+                System.out.println("Автомобиль НЕ совпадает с символьным восстановлением");
+            }
+
+            System.out.println("\nВосстановленный объект из System.in:");
             VehicleUtils.printModelsPrices(readAuto);
 
             if (auto.equals(readAuto)) {
-                System.out.println("✅ Автомобиль совпадает с символьным восстановлением");
+                System.out.println("Автомобиль совпадает с символьным восстановлением");
             } else {
-                System.out.println("❌ Автомобиль НЕ совпадает с символьным восстановлением");
+                System.out.println("Автомобиль НЕ совпадает с символьным восстановлением");
             }
 
             System.out.println("\nВосстановленный объект после сериализации:");
             VehicleUtils.printModelsPrices(restoredAuto);
 
             if (auto.equals(restoredAuto)) {
-                System.out.println("✅ Автомобиль совпадает с восстановленным объектом");
+                System.out.println("Автомобиль совпадает с восстановленным объектом");
             } else {
-                System.out.println("❌ Автомобиль НЕ совпадает с восстановленным объектом");
+                System.out.println("Автомобиль НЕ совпадает с восстановленным объектом");
             }
-
         } catch (DuplicateModelNameException | IOException | ClassNotFoundException e) {
-            System.err.println("❌ Ошибка: " + e.getMessage());
+            System.err.println("Ошибка: " + e.getMessage());
         } finally {
             System.out.println("=".repeat(25) + " Конец Лаб №3 " + "=".repeat(25));
         }
+    }
+
+    private static void testLab4() {
+        System.out.println("=".repeat(25) + " Лаб №4 " + "=".repeat(25));
+        try {
+            Vehicle motorcycle = new Motorcycle("yamaha", 2);
+            Vehicle cloned = (Vehicle) motorcycle.clone();
+
+            VehicleUtils.printModelsPrices(motorcycle);
+            VehicleUtils.printModelsPrices(cloned);
+
+           System.out.println(motorcycle.equals(cloned));
+        } catch (DuplicateModelNameException | CloneNotSupportedException e) {
+            System.err.println(e.getMessage());
+        }
+
+
     }
 
 }

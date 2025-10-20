@@ -6,10 +6,10 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Motorcycle implements Vehicle, Serializable{
+public class Motorcycle implements Vehicle{
 
     // ------------- Класс модели ------------- //
-    private static class Model implements Serializable {
+    private class Model implements Serializable {
         private String name = null;
         private double cost = Double.NaN;
         private Model next =  null;
@@ -222,8 +222,30 @@ public class Motorcycle implements Vehicle, Serializable{
         return sb.toString();
     }
 
-//    @Override
-//    public Object clone() { Object clone = null; return clone;}
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Motorcycle cloned = (Motorcycle) super.clone();
+
+        cloned.head = new Model(null, 0);
+        cloned.head.next = cloned.head;
+        cloned.head.prev = cloned.head;
+
+        cloned.size = 0;
+
+        lastModified = System.currentTimeMillis();
+
+        Model q = this.head.next;
+
+        while (q != this.head) {
+            try {
+                cloned.addModel(q.getName(), q.getCost());
+            } catch (DuplicateModelNameException e) {
+                System.out.println(e.getMessage());
+            }
+            q = q.next;
+        }
+        return cloned;
+    }
 
     @Override
     public int getSize() { return this.size; }

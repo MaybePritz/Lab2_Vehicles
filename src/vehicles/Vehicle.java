@@ -2,9 +2,10 @@ package vehicles;
 
 import exceptions.*;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public interface Vehicle {
+public interface Vehicle extends Serializable, Cloneable {
     String getBrand();
     void setBrand(String brand);
 
@@ -24,8 +25,8 @@ public interface Vehicle {
     int hashCode();
 
     String toString();
-//
-//    Object clone();
+
+    Object clone() throws CloneNotSupportedException;
 
     int getSize();
 }

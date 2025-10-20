@@ -56,20 +56,16 @@ public final class VehicleUtils{
     public static Vehicle inputVehicle(InputStream in) throws IOException, DuplicateModelNameException {
         DataInputStream dis = new DataInputStream(in);
 
-        //Читаем type
         int typeLength = dis.readInt();
         byte[] typeBytes = new byte[typeLength];
         dis.readFully(typeBytes);
         String type = new String(typeBytes);
 
-
-        //Читаем марку
         int brandLength = dis.readInt();
         byte[] brandBytes = new byte[brandLength];
         dis.readFully(brandBytes);
         String brand = new String(brandBytes);
 
-        //Читаем кол-во моделей
         int modelCount = dis.readInt();
 
         Vehicle vehicle = switch (type) {
