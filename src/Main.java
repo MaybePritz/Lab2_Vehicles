@@ -192,7 +192,7 @@ public class Main {
     private static void testLab4() {
         System.out.println("=".repeat(25) + " Лаб №4 " + "=".repeat(25));
         try {
-            Vehicle auto = new Automobile("Skoda", 6);
+            Vehicle auto = new Motorcycle("Skoda", 6);
 
             Vehicle clone = (Vehicle) auto.clone();
 
@@ -203,7 +203,7 @@ public class Main {
             System.out.println("Хэш-код оригинала: " + auto.hashCode());
             System.out.println("Хэш-код клона: " + clone.hashCode() );
 
-            clone.addModel("Модель12", 337);
+            //3  clone.addModel("Модель12", 337);
 
             clone.setModelName("Модель1", "NewModel");
 
