@@ -192,14 +192,30 @@ public class Main {
     private static void testLab4() {
         System.out.println("=".repeat(25) + " Лаб №4 " + "=".repeat(25));
         try {
-            Vehicle motorcycle = new Motorcycle("yamaha", 2);
-            Vehicle cloned = (Vehicle) motorcycle.clone();
+            Vehicle auto = new Automobile("Skoda", 6);
 
-            VehicleUtils.printModelsPrices(motorcycle);
-            VehicleUtils.printModelsPrices(cloned);
+            Vehicle clone = (Vehicle) auto.clone();
 
-           System.out.println(motorcycle.equals(cloned));
-        } catch (DuplicateModelNameException | CloneNotSupportedException e) {
+            System.out.println("Оригинала: " + auto);
+            System.out.println("Клона: " + clone);
+            System.out.println("Авто равно клону?: " + auto.equals(clone));
+
+            System.out.println("Хэш-код оригинала: " + auto.hashCode());
+            System.out.println("Хэш-код клона: " + clone.hashCode() );
+
+            clone.addModel("Модель12", 337);
+
+            clone.setModelName("Модель1", "NewModel");
+
+            System.out.println("Оригинала: " + auto);
+            System.out.println("Клона: " + clone);
+
+            System.out.println("Авто равно клону?: " + auto.equals(clone));
+
+            System.out.println("Хэш-код оригинала: " + auto.hashCode());
+            System.out.println("Хэш-код клона: " + clone.hashCode());
+
+        } catch (NoSuchModelNameException | DuplicateModelNameException | CloneNotSupportedException e) {
             System.err.println(e.getMessage());
         }
 

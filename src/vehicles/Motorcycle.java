@@ -181,7 +181,6 @@ public class Motorcycle implements Vehicle{
     @Override
     public boolean equals(Object obj) {
         if(this == obj) return true;
-        if(this.hashCode() == obj.hashCode()) return true;
 
         if(obj instanceof Vehicle comparableVehicle) {
 
@@ -232,8 +231,6 @@ public class Motorcycle implements Vehicle{
 
         cloned.size = 0;
 
-        lastModified = System.currentTimeMillis();
-
         Model q = this.head.next;
 
         while (q != this.head) {
@@ -244,6 +241,8 @@ public class Motorcycle implements Vehicle{
             }
             q = q.next;
         }
+
+        cloned.lastModified = System.currentTimeMillis();
         return cloned;
     }
 

@@ -174,7 +174,6 @@ public class Automobile implements Vehicle {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if(this.hashCode() != obj.hashCode()) return false;
 
         if (obj instanceof Vehicle comparableVehicle) {
             if (!this.getBrand().equals(comparableVehicle.getBrand())) return false;
