@@ -4,22 +4,36 @@ import exceptions.DuplicateModelNameException;
 import vehicles.Automobile;
 import vehicles.*;
 
+import java.lang.reflect.Constructor;
+import java.util.Scanner;
+import java.util.Locale;
 import java.io.*;
 
 public final class VehicleUtils{
 
-    public static double averagePrice(Vehicle vehicle){
-        double[] prices = vehicle.getModelsCost();
-        double avg = 0;
-        double sum = 0;
-        if(prices == null || prices.length == 0)
-            avg = 0;
-        else {
-            for(double price : prices)
-                sum += price;
-            avg = sum / prices.length;
+    public static double getAveragePrice(Vehicle... vehicles){
+        if (vehicles == null || vehicles.length == 0) {
+            throw new IllegalArgumentException("Массив транспортных средств не может быть пустым");
         }
-        return avg;
+
+        double sum = 0;
+        int count = 0;
+
+        for (Vehicle vehicle : vehicles) {
+            if (vehicle != null) {
+                double[] costs = vehicle.getModelsCost();
+                for (double cost : costs) {
+                    sum += cost;
+                    count++;
+                }
+            }
+        }
+
+        if (count == 0) {
+            throw new IllegalArgumentException("Нет моделей для расчета средней цены");
+        }
+
+        return sum / count;
     }
 
     public static void printModelsPrices(Vehicle vehicle) {
@@ -71,6 +85,9 @@ public final class VehicleUtils{
         Vehicle vehicle = switch (type) {
             case "Automobile" -> new Automobile(brand, 0);
             case "Motorcycle" -> new Motorcycle(brand, 0);
+            case "Scooter" -> new Scooter(brand, 0);
+            case "Atv" -> new Atv(brand, 0);
+            case "Moped"  -> new Moped(brand, 0);
             default -> throw new IOException("Неизвестный тип транспортного средства: " + type);
         };
 
@@ -89,55 +106,107 @@ public final class VehicleUtils{
         return vehicle;
     }
 
-    public static void writeVehicle(Vehicle vehicle, Writer out) throws IOException{
+    public static void writeVehicle(Vehicle vehicle, Writer out) throws IOException {
         PrintWriter pw = new PrintWriter(out);
 
-        pw.println(vehicle.getClass().getSimpleName());
-        pw.println(vehicle.getBrand());
-        pw.println(vehicle.getSize());
+        pw.printf("%s%n", vehicle.getClass().getSimpleName());
+        pw.printf("%s%n", vehicle.getBrand());
+        pw.printf("%d%n", vehicle.getSize());
 
-        String[] names =  vehicle.getModelsName();
+        String[] names = vehicle.getModelsName();
         double[] prices = vehicle.getModelsCost();
 
         for (int i = 0; i < vehicle.getSize(); i++) {
-            pw.println(names[i] + " -> " + prices[i]);
+            pw.printf(Locale.US, "%s %.2f %n", names[i], prices[i]);
         }
 
         pw.flush();
     }
 
+
     public static Vehicle readVehicle(Reader in) throws IOException, DuplicateModelNameException {
-        BufferedReader reader = new BufferedReader(in);
+        Scanner scanner = new Scanner(in);
 
+        if (!scanner.hasNextLine()) {
+            throw new IOException("Пустой поток данных");
+        }
 
-        String type = reader.readLine();
-        String brand = reader.readLine();
+        String type = scanner.nextLine().trim();
 
-        if(brand == null || brand.isEmpty())
+        if (!scanner.hasNextLine()) {
+            throw new IOException("Отсутствует бренд");
+        }
+
+        String brand = scanner.nextLine().trim();
+        if (brand.isEmpty()) {
             throw new IOException("Пустой бренд");
+        }
 
-        int size = Integer.parseInt(reader.readLine());
+        if (!scanner.hasNextInt()) {
+            throw new IOException("Неверный формат размера");
+        }
+
+        int size = scanner.nextInt();
+        scanner.nextLine();
 
         String[] names = new String[size];
         double[] prices = new double[size];
 
         for (int i = 0; i < size; i++) {
-            String[] line = reader.readLine().split(" -> ");
+            if (!scanner.hasNextLine()) {
+                throw new IOException("Недостаточно данных о моделях");
+            }
 
-            names[i] = line[0];
-            prices[i] = Double.parseDouble(line[1]);
+            String line = scanner.nextLine();
+
+            Scanner lineScanner = new Scanner(line);
+            lineScanner.useLocale(Locale.US);
+
+            if (!lineScanner.hasNext()) {
+                throw new IOException("Неверный формат модели: " + line);
+            }
+
+            names[i] = lineScanner.next();
+
+            if (!lineScanner.hasNextDouble()) {
+                throw new IOException("Неверный формат цены в строке: " + line);
+            }
+
+            prices[i] = lineScanner.nextDouble();
+            lineScanner.close();
         }
 
         Vehicle vehicle = switch (type) {
             case "Automobile" -> new Automobile(brand, 0);
             case "Motorcycle" -> new Motorcycle(brand, 0);
+            case "Scooter" -> new Scooter(brand, 0);
+            case "Atv" -> new Atv(brand, 0);
+            case "Moped" -> new Moped(brand, 0);
             default -> throw new IOException("Неизвестный тип транспортного средства: " + type);
         };
 
-        for(int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             vehicle.addModel(names[i], prices[i]);
         }
 
+        scanner.close();
         return vehicle;
+    }
+
+    public static Vehicle createVehicle(String brand, int size, Vehicle prototype) {
+        if (prototype == null) return null;
+
+        try {
+            Class<? extends Vehicle> loadClass = prototype.getClass();
+            Constructor<?> constructor = loadClass.getConstructor(String.class, int.class);
+            return (Vehicle) constructor.newInstance(brand, size);
+
+        } catch (NoSuchMethodException e) {
+            System.err.println("Конструктор (String, int) не найден в " + prototype.getClass().getSimpleName());
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

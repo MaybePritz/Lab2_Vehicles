@@ -4,23 +4,22 @@ import exceptions.*;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
 
-
-public class Automobile implements Vehicle {
+public class Scooter implements Vehicle {
 
     private String brand = null;
-    private Model[] models = null;
+    private HashMap<String, Model> models = new HashMap<>();
 
-    public Automobile(String brand, int size) throws DuplicateModelNameException {
+    public Scooter(String brand, int size) throws DuplicateModelNameException {
         if (brand == null || brand.isEmpty())
             throw new IllegalArgumentException("Бренд не может быть пустым");
         if (size < 0)
-            throw new IllegalArgumentException("Размер массива моделей не может быть отрицательным");
+            throw new IllegalArgumentException("Размер моделей не может быть отрицательным");
 
         this.brand = brand;
-        this.models = new Model[0];
 
         for (int i = 0; i < size; i++) {
             this.addModel("Модель" + (i + 1), 0);
@@ -73,28 +72,23 @@ public class Automobile implements Vehicle {
 
     @Override
     public String[] getModelsName() {
-        String[] names = new String[models.length];
-        for (int i = 0; i < models.length; i++) {
-            names[i] = models[i].getName();
-        }
-        return names;
+        return models.keySet().toArray(new String[0]);
     }
 
     @Override
     public double[] getModelsCost() {
-        double[] costs = new double[models.length];
-        for (int i = 0; i < models.length; i++) {
-            costs[i] = this.models[i].getCost();
-        }
-        return costs;
+        return  models.values()
+                .stream()
+                .mapToDouble(Model::getCost)
+                .toArray();
     }
 
     @Override
     public double getModelCost(String name) throws NoSuchModelNameException {
-        for (int i = 0; i < models.length; i++) {
-            if (models[i].getName().equals(name)) return models[i].getCost();
-        }
-        throw new NoSuchModelNameException();
+        Model m = models.get(name);
+        if (m == null)
+            throw new NoSuchModelNameException();
+        return m.getCost();
     }
 
     @Override
@@ -105,13 +99,10 @@ public class Automobile implements Vehicle {
         if (cost < 0)
             throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
 
-        for (int i = 0; i < models.length; i++) {
-            if (models[i].getName().equals(name)) {
-                models[i].setCost(cost);
-                return;
-            }
-        }
-        throw new NoSuchModelNameException();
+        Model model = models.get(name);
+        if (model == null)
+            throw new NoSuchModelNameException();
+        model.setCost(cost);
     }
 
     @Override
@@ -120,21 +111,15 @@ public class Automobile implements Vehicle {
             throw new IllegalArgumentException("Имя модели не может быть пустым");
         }
 
-        int index = -1;
-
-        for (int i = 0; i < models.length; i++) {
-            if (newName.equals(models[i].name)) {
-                throw new DuplicateModelNameException();
-            }
-            if (index == -1 && oldName.equals(models[i].name)) {
-                index = i;
-            }
-        }
-
-        if (index != -1)
-            models[index].setName(newName);
-        else
+        if(!models.containsKey(oldName))
             throw new NoSuchModelNameException();
+
+        if(models.containsKey(newName))
+            throw new DuplicateModelNameException();
+
+        Model model = models.remove(oldName);
+        model.setName(newName);
+        models.put(newName, model);
     }
 
     @Override
@@ -142,13 +127,15 @@ public class Automobile implements Vehicle {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Имя модели не может быть пустым");
         }
+
+        if(models.containsKey(name))
+            throw new DuplicateModelNameException();
+
         if (cost < 0)
             throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
 
-        checkDuplicate(name);
 
-        models = Arrays.copyOf(models, models.length + 1);
-        models[models.length - 1] = new Model(name, cost);
+        models.put(name, new Model(name, cost));
     }
 
     @Override
@@ -157,20 +144,8 @@ public class Automobile implements Vehicle {
             throw new IllegalArgumentException("Имя модели не может быть пустым");
         }
 
-        int index = -1;
-        for (int i = 0; i < models.length; i++) {
-            if (this.models[i].getName().equals(name)) {
-                index = i;
-                break;
-            }
-        }
-
-        if (index == -1) {
+        if(models.remove(name) == null)
             throw new NoSuchModelNameException();
-        }
-
-        System.arraycopy(models, index + 1, models, index, models.length - index - 1);
-        models = Arrays.copyOf(models, models.length - 1);
     }
 
     @Override
@@ -187,34 +162,35 @@ public class Automobile implements Vehicle {
     @Override
     public int hashCode() {
         int result = Objects.hash(this.brand);
-        result = 31 * result + Arrays.hashCode(this.getModelsName());
-        result = 31 * result + Arrays.hashCode(this.getModelsCost());
+        result = 31 * result + models.keySet().hashCode();
+        result = 31 * result + models.values().hashCode();
         return result;
     }
 
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append("Автомобиль: ")
+        sb.append("Скутер: ")
                 .append(brand)
                 .append("\n");
-        for (int i = 0; i < models.length; i++) {
-            sb.append(models[i].getName())
-                    .append(" -> ")
-                    .append(models[i].getCost())
-                    .append("\n");
-        }
+        models.forEach((name, model) ->
+                sb.append(name)
+                        .append(" -> ")
+                        .append(model.getCost())
+                        .append("\n"));
         return sb.toString();
     }
 
     @Override
     public Object clone() {
-        Automobile cloned = null;
+        Scooter cloned = null;
         try {
-            cloned = (Automobile) super.clone();
-            cloned.models = new Model[this.getSize()];
-            for (int i = 0; i < cloned.models.length; i++) {
-                cloned.models[i] = (Model) this.models[i].clone();
+            cloned = (Scooter) super.clone();
+            cloned.models = new  HashMap<>();
+            for (HashMap.Entry<String, Model> entry :this.models.entrySet()) {
+                cloned.models.put(entry.getKey(),
+                        (Model) entry.getValue().clone()
+                );
             }
         } catch (CloneNotSupportedException ex) { }
         return cloned;
@@ -222,12 +198,6 @@ public class Automobile implements Vehicle {
 
     @Override
     public int getSize() {
-        return models.length;
-    }
-
-    private void checkDuplicate(String name) throws DuplicateModelNameException {
-        for (int i = 0; i < models.length; i++) {
-            if (models[i].getName().equals(name)) throw new DuplicateModelNameException();
-        }
+        return models.size();
     }
 }

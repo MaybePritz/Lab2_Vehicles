@@ -3,24 +3,23 @@ package vehicles;
 import exceptions.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
 
-
-public class Automobile implements Vehicle {
+public class Atv implements Vehicle {
 
     private String brand = null;
-    private Model[] models = null;
+    private ArrayList<Model> models = new ArrayList<Model>();
 
-    public Automobile(String brand, int size) throws DuplicateModelNameException {
+    public Atv(String brand, int size) throws DuplicateModelNameException {
         if (brand == null || brand.isEmpty())
             throw new IllegalArgumentException("Бренд не может быть пустым");
         if (size < 0)
-            throw new IllegalArgumentException("Размер массива моделей не может быть отрицательным");
+            throw new IllegalArgumentException("Размер моделей не может быть отрицательным");
 
         this.brand = brand;
-        this.models = new Model[0];
 
         for (int i = 0; i < size; i++) {
             this.addModel("Модель" + (i + 1), 0);
@@ -73,28 +72,22 @@ public class Automobile implements Vehicle {
 
     @Override
     public String[] getModelsName() {
-        String[] names = new String[models.length];
-        for (int i = 0; i < models.length; i++) {
-            names[i] = models[i].getName();
-        }
-        return names;
+        return models.stream()
+                .map(Model::getName)
+                .toArray(String[]::new);
     }
 
     @Override
     public double[] getModelsCost() {
-        double[] costs = new double[models.length];
-        for (int i = 0; i < models.length; i++) {
-            costs[i] = this.models[i].getCost();
-        }
-        return costs;
+        return  models.stream()
+                .mapToDouble(Atv.Model::getCost)
+                .toArray();
     }
 
     @Override
     public double getModelCost(String name) throws NoSuchModelNameException {
-        for (int i = 0; i < models.length; i++) {
-            if (models[i].getName().equals(name)) return models[i].getCost();
-        }
-        throw new NoSuchModelNameException();
+        Model m = this.findModel(name);
+        return m.getCost();
     }
 
     @Override
@@ -105,13 +98,8 @@ public class Automobile implements Vehicle {
         if (cost < 0)
             throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
 
-        for (int i = 0; i < models.length; i++) {
-            if (models[i].getName().equals(name)) {
-                models[i].setCost(cost);
-                return;
-            }
-        }
-        throw new NoSuchModelNameException();
+        Model model = this.findModel(name);
+        model.setCost(cost);
     }
 
     @Override
@@ -120,35 +108,32 @@ public class Automobile implements Vehicle {
             throw new IllegalArgumentException("Имя модели не может быть пустым");
         }
 
-        int index = -1;
-
-        for (int i = 0; i < models.length; i++) {
-            if (newName.equals(models[i].name)) {
+        for(Model m : this.models) {
+            if (m.getName().equals(newName)) {
                 throw new DuplicateModelNameException();
-            }
-            if (index == -1 && oldName.equals(models[i].name)) {
-                index = i;
             }
         }
 
-        if (index != -1)
-            models[index].setName(newName);
-        else
-            throw new NoSuchModelNameException();
+        Model model = this.findModel(oldName);
+
+        model.setName(newName);
     }
 
     @Override
     public void addModel(String name, double cost) throws DuplicateModelNameException {
-        if (name == null || name.isEmpty()) {
+        if (name == null || name.isEmpty())
             throw new IllegalArgumentException("Имя модели не может быть пустым");
+
+        for(Model m : this.models) {
+            if (m.getName().equals(name)) {
+                throw new DuplicateModelNameException();
+            }
         }
+
         if (cost < 0)
             throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
 
-        checkDuplicate(name);
-
-        models = Arrays.copyOf(models, models.length + 1);
-        models[models.length - 1] = new Model(name, cost);
+        models.add(new Model(name, cost));
     }
 
     @Override
@@ -157,20 +142,14 @@ public class Automobile implements Vehicle {
             throw new IllegalArgumentException("Имя модели не может быть пустым");
         }
 
-        int index = -1;
-        for (int i = 0; i < models.length; i++) {
-            if (this.models[i].getName().equals(name)) {
-                index = i;
-                break;
+        for(int i  = 0; i < models.size(); i++) {
+            if(models.get(i).getName().equals(name)) {
+                models.remove(i);
+                return;
             }
         }
 
-        if (index == -1) {
-            throw new NoSuchModelNameException();
-        }
-
-        System.arraycopy(models, index + 1, models, index, models.length - index - 1);
-        models = Arrays.copyOf(models, models.length - 1);
+        throw new NoSuchModelNameException();
     }
 
     @Override
@@ -195,39 +174,46 @@ public class Automobile implements Vehicle {
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append("Автомобиль: ")
+        sb.append("Квадрацикл: ")
                 .append(brand)
                 .append("\n");
-        for (int i = 0; i < models.length; i++) {
-            sb.append(models[i].getName())
+
+        for (Model m : this.models) {
+            sb.append(m.getName())
                     .append(" -> ")
-                    .append(models[i].getCost())
+                    .append(m.getCost())
                     .append("\n");
         }
+
         return sb.toString();
     }
 
     @Override
     public Object clone() {
-        Automobile cloned = null;
+        Atv cloned = null;
         try {
-            cloned = (Automobile) super.clone();
-            cloned.models = new Model[this.getSize()];
-            for (int i = 0; i < cloned.models.length; i++) {
-                cloned.models[i] = (Model) this.models[i].clone();
+            cloned = (Atv) super.clone();
+            cloned.models = new ArrayList<>();
+
+            for(Model m : this.models) {
+                cloned.models.add((Model) m.clone());
             }
+
         } catch (CloneNotSupportedException ex) { }
         return cloned;
     }
 
     @Override
     public int getSize() {
-        return models.length;
+        return models.size();
     }
 
-    private void checkDuplicate(String name) throws DuplicateModelNameException {
-        for (int i = 0; i < models.length; i++) {
-            if (models[i].getName().equals(name)) throw new DuplicateModelNameException();
+    private Model findModel(String name) throws NoSuchModelNameException {
+        for (Model m : models) {
+            if (m.getName().equals(name)) {
+                return m;
+            }
         }
+        throw new NoSuchModelNameException();
     }
 }
