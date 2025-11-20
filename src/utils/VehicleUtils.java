@@ -117,7 +117,8 @@ public final class VehicleUtils{
         double[] prices = vehicle.getModelsCost();
 
         for (int i = 0; i < vehicle.getSize(); i++) {
-            pw.printf(Locale.US, "%s %.2f %n", names[i], prices[i]);
+            pw.printf("%s%n", names[i]);
+            pw.printf(Locale.US, "%.2f%n", prices[i]);
         }
 
         pw.flush();
@@ -125,72 +126,43 @@ public final class VehicleUtils{
 
 
     public static Vehicle readVehicle(Reader in) throws IOException, DuplicateModelNameException {
+
         Scanner scanner = new Scanner(in);
 
-        if (!scanner.hasNextLine()) {
-            throw new IOException("Пустой поток данных");
+        String className = scanner.nextLine();
+        String brand = scanner.nextLine();
+        int length = Integer.parseInt(scanner.nextLine());
+
+        Vehicle v;
+        switch (className) {
+            case "Automobile":
+                v = new Automobile(brand, 0);
+                break;
+            case "Motorcycle":
+                v = new Motorcycle(brand, 0);
+                break;
+            case "Scooter":
+                v = new Scooter(brand, 0);
+                break;
+            case "Atv":
+                v = new Atv(brand, 0);
+                break;
+            case "Moped":
+                v = new Moped(brand, 0);
+                break;
+            default:
+                scanner.close();
+                throw new IllegalArgumentException("Неизвестный класс транспортного средства: " + className);
         }
 
-        String type = scanner.nextLine().trim();
-
-        if (!scanner.hasNextLine()) {
-            throw new IOException("Отсутствует бренд");
-        }
-
-        String brand = scanner.nextLine().trim();
-        if (brand.isEmpty()) {
-            throw new IOException("Пустой бренд");
-        }
-
-        if (!scanner.hasNextInt()) {
-            throw new IOException("Неверный формат размера");
-        }
-
-        int size = scanner.nextInt();
-        scanner.nextLine();
-
-        String[] names = new String[size];
-        double[] prices = new double[size];
-
-        for (int i = 0; i < size; i++) {
-            if (!scanner.hasNextLine()) {
-                throw new IOException("Недостаточно данных о моделях");
-            }
-
-            String line = scanner.nextLine();
-
-            Scanner lineScanner = new Scanner(line);
-            lineScanner.useLocale(Locale.US);
-
-            if (!lineScanner.hasNext()) {
-                throw new IOException("Неверный формат модели: " + line);
-            }
-
-            names[i] = lineScanner.next();
-
-            if (!lineScanner.hasNextDouble()) {
-                throw new IOException("Неверный формат цены в строке: " + line);
-            }
-
-            prices[i] = lineScanner.nextDouble();
-            lineScanner.close();
-        }
-
-        Vehicle vehicle = switch (type) {
-            case "Automobile" -> new Automobile(brand, 0);
-            case "Motorcycle" -> new Motorcycle(brand, 0);
-            case "Scooter" -> new Scooter(brand, 0);
-            case "Atv" -> new Atv(brand, 0);
-            case "Moped" -> new Moped(brand, 0);
-            default -> throw new IOException("Неизвестный тип транспортного средства: " + type);
-        };
-
-        for (int i = 0; i < size; i++) {
-            vehicle.addModel(names[i], prices[i]);
+        for (int i = 0; i < length; i++) {
+            String modelName = scanner.nextLine();
+            double price = Double.parseDouble(scanner.nextLine());
+            v.addModel(modelName, price);
         }
 
         scanner.close();
-        return vehicle;
+        return v;
     }
 
     public static Vehicle createVehicle(String brand, int size, Vehicle prototype) {

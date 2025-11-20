@@ -11,7 +11,7 @@ import java.util.Objects;
 public class Scooter implements Vehicle {
 
     private String brand = null;
-    private HashMap<String, Model> models = new HashMap<>();
+    private HashMap<String, Double> models = new HashMap<>();
 
     public Scooter(String brand, int size) throws DuplicateModelNameException {
         if (brand == null || brand.isEmpty())
@@ -72,23 +72,28 @@ public class Scooter implements Vehicle {
 
     @Override
     public String[] getModelsName() {
-        return models.keySet().toArray(new String[0]);
+        String[] names =  models.keySet().toArray(new String[0]);
+        Arrays.sort(names);
+        return names;
     }
 
     @Override
     public double[] getModelsCost() {
-        return  models.values()
-                .stream()
-                .mapToDouble(Model::getCost)
-                .toArray();
+        double[] cost =  new double[models.size()];
+        String[] names = getModelsName();
+
+        for (int i = 0; i < models.size(); i++) {
+            cost[i] = models.get(names[i]);
+        }
+
+        return cost;
     }
 
     @Override
     public double getModelCost(String name) throws NoSuchModelNameException {
-        Model m = models.get(name);
-        if (m == null)
+        if(models.containsKey(name))
             throw new NoSuchModelNameException();
-        return m.getCost();
+        return models.get(name);
     }
 
     @Override
@@ -99,10 +104,10 @@ public class Scooter implements Vehicle {
         if (cost < 0)
             throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
 
-        Model model = models.get(name);
-        if (model == null)
+        if(models.containsKey(name))
             throw new NoSuchModelNameException();
-        model.setCost(cost);
+
+        models.replace(name, cost);
     }
 
     @Override
@@ -117,9 +122,10 @@ public class Scooter implements Vehicle {
         if(models.containsKey(newName))
             throw new DuplicateModelNameException();
 
-        Model model = models.remove(oldName);
-        model.setName(newName);
-        models.put(newName, model);
+        Double oldCost = models.get(oldName);
+
+        models.remove(oldName);
+        models.put(newName, oldCost);
     }
 
     @Override
@@ -135,7 +141,7 @@ public class Scooter implements Vehicle {
             throw new ModelPriceOutOfBoundsException("Цена модели не может быть отрицательной");
 
 
-        models.put(name, new Model(name, cost));
+        models.put(name, cost);
     }
 
     @Override
@@ -173,10 +179,10 @@ public class Scooter implements Vehicle {
         sb.append("Скутер: ")
                 .append(brand)
                 .append("\n");
-        models.forEach((name, model) ->
+        models.forEach((name, cost) ->
                 sb.append(name)
                         .append(" -> ")
-                        .append(model.getCost())
+                        .append(cost)
                         .append("\n"));
         return sb.toString();
     }
@@ -187,10 +193,8 @@ public class Scooter implements Vehicle {
         try {
             cloned = (Scooter) super.clone();
             cloned.models = new  HashMap<>();
-            for (HashMap.Entry<String, Model> entry :this.models.entrySet()) {
-                cloned.models.put(entry.getKey(),
-                        (Model) entry.getValue().clone()
-                );
+            for (String key : this.models.keySet()) {
+                cloned.models.put(key, this.models.get(key));
             }
         } catch (CloneNotSupportedException ex) { }
         return cloned;
